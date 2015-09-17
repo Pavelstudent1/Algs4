@@ -4,7 +4,7 @@ import java.util.Random;
 
 public class Percolation {
 	
-	public static final int SITE_VALUE = 100;
+	public static final int SITE = 100;
 	public static final int NUMBER_OF_ROUNDS = 1000;
 	
 	
@@ -16,14 +16,14 @@ public class Percolation {
 		float sumOfPercolates = 0;
 		while(roundCounter++ < NUMBER_OF_ROUNDS){
 			
-			UFforMatrix uf = new UFforMatrix(SITE_VALUE);
-			boolean[][] matrix = new boolean[SITE_VALUE][SITE_VALUE];
+			UFforMatrix uf = new UFforMatrix(SITE);
+			boolean[][] matrix = new boolean[SITE][SITE];
 			
 			int countOfPercolateSites = 0;
 			while(!uf.connected(uf.getUpSite(), uf.getDownSite())){
 				
-				int x = rand.nextInt(SITE_VALUE);
-				int y = rand.nextInt(SITE_VALUE);
+				int x = rand.nextInt(SITE);
+				int y = rand.nextInt(SITE);
 				
 				if (matrix[x][y]) continue;
 				matrix[x][y] = true;
@@ -35,8 +35,8 @@ public class Percolation {
 			}
 			
 //			System.out.println("===========================================");
-			sumOfPercolates += (float)countOfPercolateSites / (SITE_VALUE * SITE_VALUE);
-			System.out.println("Round[" + roundCounter + "]-> Percolate value is " + (float)countOfPercolateSites / (SITE_VALUE * SITE_VALUE));
+			sumOfPercolates += (float)countOfPercolateSites / (SITE * SITE);
+			System.out.println("Round[" + roundCounter + "]-> Percolate value is " + (float)countOfPercolateSites / (SITE * SITE));
 		}
 		
 		System.out.println("--------------------------");
@@ -77,18 +77,18 @@ public class Percolation {
 		
 		
 		if (x != 0 && matrix[x - 1][y]){
-				uf.union(siteN, siteN - SITE_VALUE);
+				uf.union(siteN, siteN - SITE);
 		}
 		
-		if (x != SITE_VALUE - 1 && matrix[x + 1][y]){
-				uf.union(siteN, siteN + SITE_VALUE);
+		if (x != SITE - 1 && matrix[x + 1][y]){
+				uf.union(siteN, siteN + SITE);
 		}
 		
 		if (y != 0 && matrix[x][y - 1]){
 				uf.union(siteN, siteN - 1);
 		}
 		
-		if (y != SITE_VALUE - 1 && matrix[x][y + 1]){
+		if (y != SITE - 1 && matrix[x][y + 1]){
 				uf.union(siteN, siteN + 1);
 		}
 		
