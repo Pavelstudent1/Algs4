@@ -9,11 +9,13 @@ public class Percolation {
 	
 	
 	public static void main(String[] args) {
-		Random rand = new Random();
 		
+		Random rand = new Random();
 		
 		int roundCounter = 0;
 		float sumOfPercolates = 0;
+		
+		long startTime = System.nanoTime(), stopTime = 0;
 		while(roundCounter++ < NUMBER_OF_ROUNDS){
 			
 			UFforMatrix uf = new UFforMatrix(SITE);
@@ -38,9 +40,10 @@ public class Percolation {
 			sumOfPercolates += (float)countOfPercolateSites / (SITE * SITE);
 			System.out.println("Round[" + roundCounter + "]-> Percolate value is " + (float)countOfPercolateSites / (SITE * SITE));
 		}
-		
+		stopTime = System.nanoTime();
 		System.out.println("--------------------------");
-		System.out.println("Average percolation is " + sumOfPercolates / NUMBER_OF_ROUNDS);
+		System.out.println("Average percolation is " + sumOfPercolates / NUMBER_OF_ROUNDS + 
+						   "\nrunTime = " + (float)(stopTime - startTime) / 1000000000 + " seconds");
 		
 		
 	}
