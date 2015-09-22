@@ -4,8 +4,8 @@ import java.util.Random;
 
 public class Percolation {
 	
-	public static final int SITE = 10000;
-	public static final int NUMBER_OF_ROUNDS = 100;
+	public static final int SITE = 8000;
+	public static final int NUMBER_OF_ROUNDS = 10;
 	
 	
 	public static void main(String[] args) {

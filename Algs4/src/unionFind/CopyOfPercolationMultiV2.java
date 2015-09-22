@@ -12,17 +12,12 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class PercolationMulti {
+public class CopyOfPercolationMultiV2 {
 	
-	public static final int SITE = 8000;
-	public static final int NUMBER_OF_ROUNDS = 10;
+	public static final int SITE = 1000;
+	public static final int NUMBER_OF_ROUNDS = 100;
+	public static final int QUEUE_CAP = 10;
 	
-	
-	/** 
-	 * site = 5000 + 10 rounds = ~63 sec for OneThrean and ~ 45 for Multy(semaphore=2)
-	 * site = 8000 + 10 rounds = ~187 sec for OneThrean and ~ 130 for Multy(semaphore=2)
-	 * 
-	 * */
 	
 	public static void main(String[] args) {
 		
@@ -33,61 +28,77 @@ public class PercolationMulti {
 		float sumOfPercolates = 0;
 		AtomicLong aSumOfPercolates = new AtomicLong(0);
 		
+		BlockingQueue<Object[]> queue = new ArrayBlockingQueue<>(QUEUE_CAP);
+		
 		ExecutorService service = Executors.newFixedThreadPool(4);
 		
 		
 		long startTime = System.nanoTime(), stopTime = 0;
 		
-		while(roundCounter++ < NUMBER_OF_ROUNDS){
-			
-			try {
-				semaphore.acquire();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-			System.out.println(roundCounter + " ");
+//		final Object[] pair = {null, null};
 			
 			service.submit(new Runnable() {
 				
 				@Override
 				public void run() {
 					
+					while(true){
 						
-					UFforMatrix uf = new UFforMatrix(SITE);
-					boolean[][] matrix =  new boolean[SITE][SITE];
+						System.out.println();
+						try {
+							final Object[] pair = queue.take();
 					
-					int countOfPercolateSites = 0;
-					while(!uf.connected(uf.getUpSite(), uf.getDownSite())){
 						
-						int x = rand.nextInt(SITE);
-						int y = rand.nextInt(SITE);
-						
-						if (matrix[x][y]) continue;
-						matrix[x][y] = true;
-						
-//					print(matrix);
-						
-						searchForFrendlySites(matrix, uf, x, y);
-						countOfPercolateSites++;
+							service.submit(new Runnable() {
+							
+							@Override
+							public void run() {
+								
+								UFforMatrix uf = (UFforMatrix) pair[0];
+								boolean[][] matrix = (boolean[][]) pair[1];
+							
+							
+								int countOfPercolateSites = 0;
+								while(!uf.connected(uf.getUpSite(), uf.getDownSite())){
+									
+									int x = rand.nextInt(SITE);
+									int y = rand.nextInt(SITE);
+									
+									if (matrix[x][y]) continue;
+									matrix[x][y] = true;
+									
+									
+									searchForFrendlySites(matrix, uf, x, y);
+									countOfPercolateSites++;
+								}
+							
+							aSumOfPercolates.addAndGet(countOfPercolateSites);
+							}
+						});
+					
+					} catch (InterruptedException e) {
+						e.printStackTrace();
 					}
-					
-//				System.out.println("===========================================");
-//					sumOfPercolates += (float)countOfPercolateSites / (SITE * SITE);
-					aSumOfPercolates.addAndGet(countOfPercolateSites);
-//					System.out.println("Round[" + rC + "]-> Percolate value is " + (float)countOfPercolateSites / (SITE * SITE));
-				
-				System.out.println("done!");
-				semaphore.release();
 				}
+			}
 				
 			});
 			
-		
-		//end of whole turn
+			
+		while(roundCounter++ <NUMBER_OF_ROUNDS){
+			
+			Object[] tmp = {new UFforMatrix(SITE), new boolean[SITE][SITE]};
+			
+			try {
+				queue.put(tmp);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			
+//			tmp = new Object[2];
 		}
-		
-		
-
+			
+			
 		
 		service.shutdown();
 		try {
@@ -152,35 +163,6 @@ public class PercolationMulti {
 		if (y != SITE - 1 && matrix[x][y + 1]){
 				uf.union(siteN, siteN + 1);
 		}
-		
-		
-//		if (x != 0){
-//			if (matrix[x - 1][y]){
-//				uf.union(siteN, siteN - SITE_VALUE);
-//			}
-//		}
-		
-//		if (x != 0 && matrix[x - 1][y]){
-//			uf.union(siteN, siteN - SITE_VALUE);
-//		}
-//		
-//		if (x != SITE_VALUE - 1){
-//			if (matrix[x + 1][y]){
-//				uf.union(siteN, siteN + SITE_VALUE);
-//			}
-//		}
-//		
-//		if (y != 0){
-//			if (matrix[x][y - 1]){
-//				uf.union(siteN, siteN - 1);
-//			}
-//		}
-//		
-//		if (y != SITE_VALUE - 1){
-//			if (matrix[x][y + 1]){
-//				uf.union(siteN, siteN + 1);
-//			}
-//		}
 		
 		
 	}
