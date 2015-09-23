@@ -14,26 +14,20 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public class PercolationMulti {
 	
-	public static final int SITE = 8000;
-	public static final int NUMBER_OF_ROUNDS = 10;
+	public static final int SITE = 1000;
+	public static final int NUMBER_OF_ROUNDS = 100;
 	
-	
-	/** 
-	 * site = 5000 + 10 rounds = ~63 sec for OneThrean and ~ 45 for Multy(semaphore=2)
-	 * site = 8000 + 10 rounds = ~187 sec for OneThrean and ~ 130 for Multy(semaphore=2)
-	 * 
-	 * */
+
 	
 	public static void main(String[] args) {
 		
-		Random rand = new Random();
-		Semaphore semaphore = new Semaphore(2);
+		
+		Semaphore semaphore = new Semaphore(4);
 		
 		int roundCounter = 0;
-		float sumOfPercolates = 0;
 		AtomicLong aSumOfPercolates = new AtomicLong(0);
 		
-		ExecutorService service = Executors.newFixedThreadPool(4);
+		ExecutorService service = Executors.newCachedThreadPool();
 		
 		
 		long startTime = System.nanoTime(), stopTime = 0;
@@ -45,14 +39,13 @@ public class PercolationMulti {
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-			System.out.println(roundCounter + " ");
 			
 			service.submit(new Runnable() {
 				
 				@Override
 				public void run() {
 					
-						
+					Random rand = new Random(); //когда rand создавался снаружи, то все потоки запрашивали его и происходила борьба за ресурсы
 					UFforMatrix uf = new UFforMatrix(SITE);
 					boolean[][] matrix =  new boolean[SITE][SITE];
 					
@@ -70,13 +63,12 @@ public class PercolationMulti {
 						searchForFrendlySites(matrix, uf, x, y);
 						countOfPercolateSites++;
 					}
-					
+					System.out.println("Percolate value is " + (float)countOfPercolateSites / (SITE * SITE));
 //				System.out.println("===========================================");
 //					sumOfPercolates += (float)countOfPercolateSites / (SITE * SITE);
 					aSumOfPercolates.addAndGet(countOfPercolateSites);
 //					System.out.println("Round[" + rC + "]-> Percolate value is " + (float)countOfPercolateSites / (SITE * SITE));
 				
-				System.out.println("done!");
 				semaphore.release();
 				}
 				
@@ -152,35 +144,6 @@ public class PercolationMulti {
 		if (y != SITE - 1 && matrix[x][y + 1]){
 				uf.union(siteN, siteN + 1);
 		}
-		
-		
-//		if (x != 0){
-//			if (matrix[x - 1][y]){
-//				uf.union(siteN, siteN - SITE_VALUE);
-//			}
-//		}
-		
-//		if (x != 0 && matrix[x - 1][y]){
-//			uf.union(siteN, siteN - SITE_VALUE);
-//		}
-//		
-//		if (x != SITE_VALUE - 1){
-//			if (matrix[x + 1][y]){
-//				uf.union(siteN, siteN + SITE_VALUE);
-//			}
-//		}
-//		
-//		if (y != 0){
-//			if (matrix[x][y - 1]){
-//				uf.union(siteN, siteN - 1);
-//			}
-//		}
-//		
-//		if (y != SITE_VALUE - 1){
-//			if (matrix[x][y + 1]){
-//				uf.union(siteN, siteN + 1);
-//			}
-//		}
 		
 		
 	}

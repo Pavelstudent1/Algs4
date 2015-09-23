@@ -5,7 +5,7 @@ import java.util.Scanner;
 
 public class Shell {
 	
-	public static final int SIZE = 10000000;
+	public static final int SIZE = 1000000;
 
 	private Shell() { }
 
