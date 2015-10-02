@@ -16,13 +16,14 @@ public class PercolationMulti {
 	
 	public static final int SITE = 1000;
 	public static final int NUMBER_OF_ROUNDS = 100;
+	public static final int SEMAPHORE_LIMIT = 4;
 	
 
 	
 	public static void main(String[] args) {
 		
 		
-		Semaphore semaphore = new Semaphore(4);
+		Semaphore semaphore = new Semaphore(SEMAPHORE_LIMIT);
 		
 		int roundCounter = 0;
 		AtomicLong aSumOfPercolates = new AtomicLong(0);
@@ -63,7 +64,7 @@ public class PercolationMulti {
 						searchForFrendlySites(matrix, uf, x, y);
 						countOfPercolateSites++;
 					}
-					System.out.println("Percolate value is " + (float)countOfPercolateSites / (SITE * SITE));
+					//System.out.println("Percolate value is " + (float)countOfPercolateSites / (SITE * SITE));
 //				System.out.println("===========================================");
 //					sumOfPercolates += (float)countOfPercolateSites / (SITE * SITE);
 					aSumOfPercolates.addAndGet(countOfPercolateSites);

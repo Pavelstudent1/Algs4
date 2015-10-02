@@ -37,8 +37,8 @@ public class Percolation {
 			}
 			
 //			System.out.println("===========================================");
-			sumOfPercolates += (float)countOfPercolateSites / (SITE * SITE);
-			System.out.println("Round[" + roundCounter + "]-> Percolate value is " + (float)countOfPercolateSites / (SITE * SITE));
+			//sumOfPercolates += (float)countOfPercolateSites / (SITE * SITE);
+			//System.out.println("Round[" + roundCounter + "]-> Percolate value is " + (float)countOfPercolateSites / (SITE * SITE));
 		}
 		stopTime = System.nanoTime();
 		System.out.println("--------------------------");
