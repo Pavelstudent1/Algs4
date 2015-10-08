@@ -13,8 +13,8 @@ package homeWork3_Pattern_Recognition;
  *************************************************************************/
 
 public class LineSegment {
-    private final Point p;   // one endpoint of this line segment
-    private final Point q;   // the other endpoint of this line segment
+    final Point p;   // one endpoint of this line segment
+    final Point q;   // the other endpoint of this line segment
 
     /**
      * Initializes a new line segment.

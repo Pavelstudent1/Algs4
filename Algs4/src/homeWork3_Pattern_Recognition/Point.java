@@ -7,7 +7,16 @@ public class Point implements Comparable<Point> {
 
     private final int x;     // x-coordinate of this point
     private final int y;     // y-coordinate of this point
-
+    
+    
+    public final int getX(){
+    	return x;
+    }
+    
+    public final int getY(){
+    	return y;
+    }
+    
     /**
      * Initializes a new point.
      *
@@ -56,10 +65,9 @@ public class Point implements Comparable<Point> {
     	if (this.x == that.x && this.y == that.y)
     		return Double.NEGATIVE_INFINITY;		//если точки совпадают
     	
-//    	double out = (that.y - this.y); 
-//    	double out2 = (that.x - this.x);
-//    	double out3 = out / out2;
-//    	return 	out3;//наклон
+    	if (this.y == that.y)
+    		return +0.0;
+
     	return (double)(that.y - this.y) / (that.x - this.x);
     }
 
