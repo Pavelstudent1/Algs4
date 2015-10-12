@@ -1,13 +1,24 @@
 package homeWork4_8_Puzzle;
 
+import java.util.LinkedList;
+import java.util.List;
+
 public class Board {
 	
 	private final int[][] a;
 	private int dimension = 0;
+	int priority = 0;
 	
-	public Board(int[][] blocks) {
+	public Board(int[][] blocks) { //конструктор "корня" дерева ходов
 		a = blocks;
 		dimension = blocks.length;
+		priority = this.manhattan();
+	}
+	
+	public Board(int[][] blocks, int move){ //конструктор для потомков
+		a = blocks;
+		dimension = blocks.length;
+		priority = this.manhattan() + move;
 	}
 	
 	public int dimension(){
@@ -30,34 +41,124 @@ public class Board {
 	}
 	
 	public int manhattan(){
+		
+		int manhattan = 0;
+		int toFind = 1;
+		
+		for (int i = 0; i < a.length; i++) {
+			for (int j = 0; j < a[i].length && toFind <= (a.length * a.length - 1); j++) {
+					if (toFind == a[i][j]) ++toFind;
+					else{
+						manhattan += findmoves(a, toFind, i, j);
+						++toFind;
+					}
+				}
+		}
+
+		return manhattan;
+	}
+		
+
+	
+	private int findmoves(int[][] a, int whtToFind, int toX, int toY) {
+		
+		for (int i = 0; i < a.length; i++) {
+			for (int j = 0; j < a[i].length; j++) {
+				if (whtToFind == a[i][j]) 
+					return Math.abs(i - toX) + Math.abs(j - toY);
+			}
+		}
+		
 		return 0;
 	}
-	
+
 	public boolean isGoal(){
-		return false;
+		//dimension*i + j + 1 даёт значение, которое должно находится в a[i][j]
+		for (int i = 0; i < a.length; i++) {
+			for (int j = 0; j < a.length && a[i][j] != 0; j++) {
+				if ((dimension*i + j + 1) != a[i][j]) 
+					return false;
+			}
+		}
+		//if (this.hamming() != 0) return false;
+		
+		return true;
 	}
 	
+	
+	//данный метод возвращает близнеца оригинального Board, 
+	//но с поменяными местами двумя плитками, которые не являются 0 (пустой плиткой) 
+	//Данный 
 	public Board twin(){
-		return null;
+		
+		int[][] twin = new int[dimension][dimension];
+		System.arraycopy(a, 0, twin, 0, dimension * dimension);
+		
+		int swapRow = 0;
+		if (twin[0][0] == 0 || twin[0][1] == 0){
+			swapRow = 1;
+		}
+		
+		int tmp = twin[swapRow][0];
+		twin[swapRow][0] = twin[swapRow][1];
+		twin[swapRow][1] = tmp;
+		
+		return new Board(twin);
 	}
 	
+	
+
+	// данный метод проверяет, является ли объект y копией this
 	public boolean equals(Object y){
-		return false;
+		
+		if (y == null) return false;
+		if (y == this) return true;
+		if (this.getClass() != y.getClass()) return false;
+		
+		if (this.a.length != ((Board)y).a.length) return false;
+		
+		for (int i = 0; i < a.length; i++) {
+			for (int j = 0; j < a.length; j++) {
+				if (this.a[i][j] != ((Board)y).a[i][j]) return false;
+			}
+		}
+		
+		return true;
 	}
 	
+	
+	//возвращает список возможных соседей текущего нода
 	public Iterable<Board> neighbours(){
-		return null;
+		
+		List<Board> list = new LinkedList<>();
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		return list;
 	}
+	
 	
 	public String toString(){
+		//TODO
+		
 		return null;
 	}
 	
 	public static void main(String[] args) {
 		int[][] testBoard = {{8,1,3},{4,0,2},{7,6,5}};
+		int[][] goalBoard = {{1,2,3},{4,5,6},{7,8,0}};
 		
 		Board b = new Board(testBoard);
+		Board g = new Board(goalBoard);
 		System.out.println(b.hamming());
+		System.out.println(b.manhattan());
+		System.out.println(b.isGoal() + " --- " + g.isGoal());
 		
 	}
 }
