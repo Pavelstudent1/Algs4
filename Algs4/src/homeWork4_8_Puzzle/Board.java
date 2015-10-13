@@ -7,18 +7,27 @@ public class Board {
 	
 	private final int[][] a;
 	private int dimension = 0;
-	int priority = 0;
 	
 	public Board(int[][] blocks) { //конструктор "корня" дерева ходов
 		a = blocks;
 		dimension = blocks.length;
-		priority = this.manhattan();
+	}
+	
+	//конструктор строящий копию на основе другого Board
+	public Board(Board orig){
+		a = new int[orig.dimension][orig.dimension];
+		dimension = a.length;
+		for (int i = 0; i < a.length; i++) {
+			for (int j = 0; j < a[i].length; j++) {
+				a[i][j] = orig.a[i][j];
+			}
+		}
+		
 	}
 	
 	public Board(int[][] blocks, int move){ //конструктор для потомков
 		a = blocks;
 		dimension = blocks.length;
-		priority = this.manhattan() + move;
 	}
 	
 	public int dimension(){
@@ -88,7 +97,7 @@ public class Board {
 	
 	//данный метод возвращает близнеца оригинального Board, 
 	//но с поменяными местами двумя плитками, которые не являются 0 (пустой плиткой) 
-	//Данный 
+	//Данный метод нужен для проверки на решаемость
 	public Board twin(){
 		
 		int[][] twin = new int[dimension][dimension];
@@ -130,22 +139,64 @@ public class Board {
 	//возвращает список возможных соседей текущего нода
 	public Iterable<Board> neighbours(){
 		
-		List<Board> list = new LinkedList<>();
+		List<Board> neibours = new LinkedList<>();
 		
+		int blankX = 0, blankY = 0;
 		
+		//ищем координаты пустой клетки
+		label: for (int i = 0; i < a.length; i++) {
+			for (int j = 0; j < a[i].length; j++) {
+				if (a[i][j] == 0){
+					blankX = i;
+					blankY = j;
+					break label;
+				}
+			}
+		}
+		//возможное смещения от положения пустой клетки: вверх, вправо, вниз, влево
+		if (blankX > 0){
+			Board tmp = new Board(this);
+			exch(tmp, blankX, blankY, blankX - 1, blankY);
+			neibours.add(tmp);
+		}
 		
+		if (blankY < dimension - 1){
+			Board tmp = new Board(this);
+			exch(tmp, blankX, blankY, blankX, blankY + 1);
+			neibours.add(tmp);
+		}
 		
+		if (blankX < dimension - 1){
+			Board tmp = new Board(this);
+			exch(tmp, blankX, blankY, blankX + 1, blankY);
+			neibours.add(tmp);
+		}
 		
+		if (blankY > 0){
+			Board tmp = new Board(this);
+			exch(tmp, blankX, blankY, blankX, blankY - 1);
+			neibours.add(tmp);
+		}
 		
-		
-		
-		
-		return list;
+		return neibours;
+	}
+	
+	private void exch(Board nei, int p1x, int p1y, int p2x, int p2y){
+		int tmp = nei.a[p1x][p1y];
+		nei.a[p1x][p1y] = nei.a[p2x][p2y];
+		nei.a[p2x][p2y] = tmp;
 	}
 	
 	
 	public String toString(){
-		//TODO
+		
+		for (int i = 0; i < a.length; i++) {
+			for (int j = 0; j < a[i].length; j++) {
+				System.out.printf("%2d ", a[i][j]);
+			}
+		System.out.println();
+		}
+		System.out.println();
 		
 		return null;
 	}
@@ -159,6 +210,11 @@ public class Board {
 		System.out.println(b.hamming());
 		System.out.println(b.manhattan());
 		System.out.println(b.isGoal() + " --- " + g.isGoal());
+		
+		for (Board neib : b.neighbours()) {
+			neib.toString();
+			System.out.println("Neibour is Goal = " + neib.isGoal());
+		}
 		
 	}
 }
