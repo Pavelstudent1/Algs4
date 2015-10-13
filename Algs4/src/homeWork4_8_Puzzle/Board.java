@@ -190,15 +190,23 @@ public class Board {
 	
 	public String toString(){
 		
+//		for (int i = 0; i < a.length; i++) {
+//			for (int j = 0; j < a[i].length; j++) {
+//				System.out.printf("%2d ", a[i][j]);
+//			}
+//		System.out.println();
+//		}
+//		System.out.println();
+		
+		StringBuilder bldr = new StringBuilder();
 		for (int i = 0; i < a.length; i++) {
 			for (int j = 0; j < a[i].length; j++) {
-				System.out.printf("%2d ", a[i][j]);
+				bldr.append(String.valueOf(a[i][j] + " "));
 			}
-		System.out.println();
+		bldr.append("\n");
 		}
-		System.out.println();
 		
-		return null;
+		return bldr.toString();
 	}
 	
 	public static void main(String[] args) {
