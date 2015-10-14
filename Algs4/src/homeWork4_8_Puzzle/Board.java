@@ -9,6 +9,7 @@ public class Board {
 	private int dimension = 0;
 	
 	public Board(int[][] blocks) { //конструктор "корня" дерева ходов
+		
 		a = blocks;
 		dimension = blocks.length;
 	}
@@ -84,7 +85,8 @@ public class Board {
 	public boolean isGoal(){
 		//dimension*i + j + 1 даёт значение, которое должно находится в a[i][j]
 		for (int i = 0; i < a.length; i++) {
-			for (int j = 0; j < a.length && a[i][j] != 0; j++) {
+			for (int j = 0; j < a.length; j++) {
+				if ((i == dimension - 1) && j == (dimension - 1)) break;
 				if ((dimension*i + j + 1) != a[i][j]) 
 					return false;
 			}
@@ -101,7 +103,9 @@ public class Board {
 	public Board twin(){
 		
 		int[][] twin = new int[dimension][dimension];
-		System.arraycopy(a, 0, twin, 0, dimension * dimension);
+		for (int i = 0; i < a.length; i++) {
+			System.arraycopy(a[i], 0, twin[i], 0, a.length);
+		}
 		
 		int swapRow = 0;
 		if (twin[0][0] == 0 || twin[0][1] == 0){
