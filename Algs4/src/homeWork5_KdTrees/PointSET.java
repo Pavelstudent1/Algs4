@@ -56,14 +56,17 @@ public class PointSET {
 		if (p == null) throw new NullPointerException();
 		
 		double minLength = Double.MAX_VALUE;
-		Point2D nearestPoint;
+		Point2D nearestPoint = null;
 		for (Point2D point : sp) {
 			double curLength = point.distanceTo(p);
-			if (curLength < minLength)
-				minLength = ;
+			if (curLength < minLength){
+				minLength = curLength;
+				nearestPoint = point;
+				System.out.println("minLength = " + minLength);
+			}
 		}
 		
-		return null;
+		return nearestPoint;
 	}
 	
 	public static void main(String[] args) {
