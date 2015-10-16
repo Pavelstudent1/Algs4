@@ -12,9 +12,13 @@ public class Node{
 	Node right = null;
 	Node left = null;
 	
-	double ownLineLen = 1.0;
-	double leftLineLen = 0;
-	double rightLineLen = 0;
-	
 	RectHV r = new RectHV(0.0, 0.0, 1.0, 1.0);
+	
+	public Node(Point2D p, int depth) {
+		this.p = p;
+		this.depth = depth;
+		this.isVertical = (this.depth % 2 == 0 ? true : false);
+		this.left = this.right = null;
+	}
+	
 }

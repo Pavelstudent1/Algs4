@@ -62,7 +62,6 @@ public class PointSET {
 			if (curLength < minLength){
 				minLength = curLength;
 				nearestPoint = point;
-				System.out.println("minLength = " + minLength);
 			}
 		}
 		

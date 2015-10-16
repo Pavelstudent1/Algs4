@@ -16,7 +16,7 @@ public class RangeSearchVisualizer {
 
         // initialize the data structures with N points from standard input
         PointSET brute = new PointSET();
-        //KdTree kdtree = new KdTree();
+        KdTree kdtree = new KdTree();
 //        while (!in.isEmpty()) {
 //            double x = in.readDouble();
 //            double y = in.readDouble();
@@ -29,6 +29,7 @@ public class RangeSearchVisualizer {
         	double y = Double.valueOf(args[i + 1]);
 			Point2D p = new Point2D(x,y);
 			brute.insert(p);
+			kdtree.insert(p);
 		}
         
 
@@ -41,6 +42,7 @@ public class RangeSearchVisualizer {
         StdDraw.setPenColor(StdDraw.BLACK);
         StdDraw.setPenRadius(.01);
         brute.draw();
+        kdtree.draw();
 
         while (true) {
             StdDraw.show(40);
@@ -65,14 +67,17 @@ public class RangeSearchVisualizer {
                 isDragging = false;
             }
 
-
+            
             RectHV rect = new RectHV(Math.min(x0, x1), Math.min(y0, y1),
                                      Math.max(x0, x1), Math.max(y0, y1));
             // draw the points
             StdDraw.clear();
             StdDraw.setPenColor(StdDraw.BLACK);
             StdDraw.setPenRadius(.01);
-            brute.draw();
+            //brute.draw();
+            kdtree.draw();
+
+            if ((x0 == x1) && (y0 == y1)) continue;
 
             // draw the rectangle
             StdDraw.setPenColor(StdDraw.BLACK);
@@ -80,16 +85,16 @@ public class RangeSearchVisualizer {
             rect.draw();
 
             // draw the range search results for brute-force data structure in red
-            StdDraw.setPenRadius(.03);
-            StdDraw.setPenColor(StdDraw.RED);
-            for (Point2D p : brute.range(rect))
-                p.draw();
+//            StdDraw.setPenRadius(.03);
+//            StdDraw.setPenColor(StdDraw.RED);
+//            for (Point2D p : brute.range(rect))
+//                p.draw();
 
             // draw the range search results for kd-tree in blue
             StdDraw.setPenRadius(.02);
             StdDraw.setPenColor(StdDraw.BLUE);
-            //for (Point2D p : kdtree.range(rect))
-            //    p.draw();
+            for (Point2D p : kdtree.range(rect))
+                p.draw();
 
             StdDraw.show(40);
         }
