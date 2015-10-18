@@ -4,7 +4,7 @@ public class Subset {
 	
 	public static void main(String[] args) {
 		
-		randomizedQueue<String> rdeq = new randomizedQueue<>();
+		randomizedQueueList<String> rdeq = new randomizedQueueList<>();
 		int count = 0;
 		int lines = 0;
 		while(!args[count].equals("|")) {
