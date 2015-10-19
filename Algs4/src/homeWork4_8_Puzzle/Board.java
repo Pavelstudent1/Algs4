@@ -15,7 +15,7 @@ public class Board {
 	}
 	
 	//конструктор строящий копию на основе другого Board
-	public Board(Board orig){
+	private Board(Board orig){
 		a = new int[orig.dimension][orig.dimension];
 		dimension = a.length;
 		for (int i = 0; i < a.length; i++) {
@@ -26,10 +26,10 @@ public class Board {
 		
 	}
 	
-	public Board(int[][] blocks, int move){ //конструктор для потомков
-		a = blocks;
-		dimension = blocks.length;
-	}
+//	public Board(int[][] blocks, int move){ //конструктор для потомков
+//		a = blocks;
+//		dimension = blocks.length;
+//	}
 	
 	public int dimension(){
 		return dimension;

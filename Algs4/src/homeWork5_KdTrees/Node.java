@@ -6,7 +6,7 @@ import edu.princeton.cs.algs4.RectHV;
 public class Node{
 
 	Point2D p = null;	//координыты точки
-	int depth = 0;	//"глубина", на которой находится точка и, от которой будет зависеть ориентация
+	int depth = 0;		//"глубина", на которой находится точка и, от которой будет зависеть ориентация
 	boolean isVertical = true;	//ориентация делящей плоскости: true = влево/вниз
 								//								false = вправо/вверх 
 	Node right = null;
