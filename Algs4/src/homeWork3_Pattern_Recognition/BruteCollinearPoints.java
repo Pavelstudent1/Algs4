@@ -1,93 +1,97 @@
 package homeWork3_Pattern_Recognition;
 
-import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class BruteCollinearPoints {
-	private Point[] points;
-	private int numberOfSegments;
-	private final int minPointsInLine = 4;
-	private LineSegment[] lineseg;
 	
+	private Point[] points = null;
+	private LineSegment[] linesegments = null;
+
 	public BruteCollinearPoints(Point[] points) {
-		if (points == null) throw new NullPointerException("Constructor's argument is null");
+		if (points == null)
+			throw new NullPointerException("Constructor's argument is null");
 		for (Point point : points) {
-			if (points == null) throw new NullPointerException("Find a null reference in constructor's argument");
+			if (points == null)
+				throw new NullPointerException("Find a null reference in constructor's argument");
 		}
-		
+
 		Point[] tmp = new Point[points.length];
 		System.arraycopy(points, 0, tmp, 0, points.length);
-		Arrays.sort(tmp);
-		for (int i = 0; i < tmp.length - 1; i++) {
-			if (tmp[i].compareTo(tmp[i + 1]) == 0)
-				throw new IllegalArgumentException("Points array have dublicates");
-		}
-		
-		
-		this.points = points;
-		
-		
-		
-//		for (int i = 0; i < points.length; i++) {
-//			
-//			LineSegment[] tmpL = new LineSegment[pointsInLine];
-//			int pointsCounter = 0;
-//			double curSlope = Double.MAX_VALUE;
-//			
-//			for (int j = 0; j < points.length && pointsCounter <= 4; j++) {
-//				if (points[i] == points[j]) continue;
-//				double res = points[i].slopeTo(points[j]);
-//				if (curSlope == Double.MAX_VALUE){
-//					curSlope = res;
-//				}else if(res == curSlope){
-//					tmpL[pointsCounter++] = new LineSegment(points[i], points[j]);
-//				}else{
-//					pointsCounter = 0;
-//					tmpL = null;
-//				}
-//			}
-//
-//		}
-		
-		Point[] p = new Point[points.length];
-		for (int i = 0; i < points.length; i++) {
-			
-			double prev = Double.MAX_VALUE;
-			for (int j = i; j < points.length; j++) {
-				
-				double cur = points[i].slopeTo(points[j]);
-				if (prev == Double.MAX_VALUE) prev = cur;
-				else if (prev == cur){
-					
+
+		Arrays.sort(tmp); //для брут-форса нужно отсортировать массив точек.
+						  //от точки с наименьшими координатами, до точки с
+						  //наибольшими
+		List<BilletLine> lines = new ArrayList<>();
+
+		Point minPoint = null, maxPoint = null;
+
+		for (int i = 0; i < tmp.length; i++) {
+
+			if (maxPoint != null) {
+				BilletLine l = new BilletLine(minPoint, maxPoint); 
+				if (isDifferentLine(lines, l)) {
+					lines.add(l);
 				}
-				
+//				lines.add(new BilletLine(minPoint, maxPoint));
+				maxPoint = null;
+			}
+			minPoint = tmp[i];
+
+			for (int j = i + 1; j < tmp.length; j++) {
+				for (int k = j + 1; k < tmp.length; k++) {
+					for (int l = k + 1; l < tmp.length; l++) {
+
+						if (tmp[i].slopeTo(tmp[j]) == tmp[i].slopeTo(tmp[k])
+								&& tmp[i].slopeTo(tmp[j]) == tmp[i].slopeTo(tmp[l])) {
+							// lines.add(new LineSegment(tmp[i], tmp[l]));
+							maxPoint = tmp[l];
+							//System.out.println(tmp[i] + " -> " + tmp[l]);
+						}
+
+					}
+				}
 			}
 		}
 		
-		
-		
-		
-		
+		linesegments = new LineSegment[lines.size()];
+		for (int i = 0; i < linesegments.length; i++) {
+			linesegments[i] = new LineSegment(lines.get(i).a, lines.get(i).b);
+		}
+
 	}
 	
-	public int numberOfSegments(){
+	private class BilletLine{
+		Point a = null;
+		Point b = null;
 		
-		return 0;
+		public BilletLine(Point a, Point b) {
+			this.a = a;
+			this.b = b;
+		}
 	}
-	
+
+	private boolean isDifferentLine(List<BilletLine> lines, BilletLine l) {
+		
+		if (lines.size() == 0) return true;
+		
+		for (BilletLine bl : lines) {
+			if (bl.a.compareTo(l.a) <= 0 && bl.b.compareTo(l.b) >= 0) return false;
+		}
+		
+		return true;
+	}
+
+	public int numberOfSegments() {
+		return linesegments.length;
+	}
+
 	public LineSegment[] segments(){
-		
-		
-		
-		return null;
+		return linesegments;
 	}
-	
-	
-	
-	
-	
-	
+
 	public static void main(String[] args) {
-		
+
 	}
 }
