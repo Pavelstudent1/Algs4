@@ -6,23 +6,24 @@ import java.util.List;
 
 public class FastCollinearPoints {
 	
-	final static int MIN_POINT_IN_LINE = 4;
-	List<LineSegment> uniq_line = new ArrayList<>();
-	
-	private class TempLine{	//т.к. класс LineSegment по зданию нельзя менять,
-		Point start;		//для временных операций используется данный аналог
-		Point end;
-	}
+	final static int MIN_POINTS_IN_LINE = 4;
+	List<LineSegment> uniq_lines = new ArrayList<>();
 	
 	public FastCollinearPoints(Point[] p) {
 	
-		
+		if (p == null)
+			throw new NullPointerException("Constructor's argument is null");
+		for (Point point : p) {
+			if (point == null)
+				throw new NullPointerException("Find a null reference in constructor's argument");
+		}
+	
 	for (int i = 0; i < p.length; i++) {
 		
 		Point[] t = new Point[p.length];	//чтобы не менять исходный порядок элементов, создаём копию вх. массива
 		System.arraycopy(p, 0, t, 0, p.length);	
-		Arrays.sort(t, t[i].slopeOrder());	//сортируем массив точек по slopeOrder относительно выбранной точки
-											//, получая в нём участки с повторяющимися значениями - это и есть 
+		Arrays.sort(t, t[i].slopeOrder());	//сортируем массив точек по slopeOrder относительно выбранной точки,
+											//получая в нём участки с повторяющимися значениями - это и есть 
 											//искомые прямые.
 		
 		int startLineIndex = 0;
@@ -35,7 +36,7 @@ public class FastCollinearPoints {
 			if (cur != prev){
 				if (lengthCount != 0) {
 					examLine(t, startLineIndex, lengthCount); //проверим полученный отрезок
-					startLineIndex = lengthCount = 0; //обнуляем счётчики и смотрим дальше
+					startLineIndex = lengthCount = 0; 		  //обнуляем счётчики и смотрим дальше
 				}
 				prev = cur;
 			}else{
@@ -55,28 +56,28 @@ public class FastCollinearPoints {
 	
 	}
 	
-	private void examLine(Point[] t, int startLineIndex, int lengthCount) {
+	private void examLine(Point[] src, int startLineIndex, int lengthCount) {
 		
-		if (lengthCount < MIN_POINT_IN_LINE) return;
-		LineSegment line = makeLine(t, startLineIndex, lengthCount);
+		if (lengthCount < MIN_POINTS_IN_LINE) return;
+		LineSegment line = buildLine(src, startLineIndex, lengthCount);
 		tryAddLine(line);
 		
 	}
 
 	private void tryAddLine(LineSegment line) {
 
-		if (uniq_line.isEmpty()){
-			uniq_line.add(line);
+		if (uniq_lines.isEmpty()){
+			uniq_lines.add(line);
 		}else{
-			for (LineSegment l : uniq_line) {
-				if (l.p.compareTo(line.p) == 0 && l.q.compareTo(line.q) == 0) return; //можно попробовать сравнивать ссылки, а не координаты
+			for (LineSegment l : uniq_lines) {
+				if (l.p.compareTo(line.p) == 0 && l.q.compareTo(line.q) == 0) return;
 			}
 			
-			uniq_line.add(line);
+			uniq_lines.add(line);
 		}
 	}
 
-	private LineSegment makeLine(Point[] src, int startLineIndex,int lengthCount) {
+	private LineSegment buildLine(Point[] src, int startLineIndex,int lengthCount) {
 
 		Point[] t = new Point[lengthCount];
 		t[0] = src[0];
@@ -85,7 +86,7 @@ public class FastCollinearPoints {
 		//нахождение крайних 2-х точек линии с мин. и макс. значениями Х-координаты
 		Point minP = null, maxP = null;
 		int min = Integer.MAX_VALUE, max = -1;
-		if (isLineVertical(t)){ //проверка, что линия НЕ вертикальная
+		if (isLineVertical(t)){ //проверка, что линия НЕ вертикальная, т.к. тогда Xmin == Xmax
 			
 			for (int i = 0; i < t.length; i++) {
 				if (t[i].getY() < min){
@@ -126,13 +127,13 @@ public class FastCollinearPoints {
 	}
 
 	public int numberOfSegments(){
-		return uniq_line.size();
+		return uniq_lines.size();
 	}
 	
 	public LineSegment[] segments(){
-		LineSegment[] out = new LineSegment[uniq_line.size()];
+		LineSegment[] out = new LineSegment[uniq_lines.size()];
 		for (int i = 0; i < out.length; i++) {
-			out[i] = uniq_line.get(i);
+			out[i] = uniq_lines.get(i);
 		}
 		
 		return out;
