@@ -32,12 +32,14 @@ public class SuspendResumeExample {
 		
 		thread.suspend();	//поток останавливается, но всё ещё считается Running
 		
-		synchronized (mutex) {
-			System.out.println("before");
-			Utils.pause(20000);
-			System.out.println("after");
-		}
-		
+		System.out.println("Trying lock mutex");
+		synchronized (mutex) {				//здесь происходит что: запускаемый поток захватывает
+			System.out.println("before");	//mutex и вечно держит его + suspend его ещё и останавливает, 
+			Utils.pause(20000);				//а потом мэин пытается захватить mutex и переводится 
+			System.out.println("after");	//в состояние мониторинга и тоже зависает намертво.
+											//И поток и мэин виснут намертво. Прога виснет намертво.
+		}									//Перенос suspend в synchronized (mutex) ниже не решит
+											//ситуацию: mutex всё равно удерживается вечным while
 		
 		thread.resume();
 		

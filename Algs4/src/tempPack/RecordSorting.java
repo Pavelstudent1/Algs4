@@ -15,7 +15,7 @@ public class RecordSorting {
 		RecordGenerator rg = new RecordGenerator();
 		RecordDefComparator defcomp = new RecordDefComparator();
 		for (int t = 0; t < VALUE_OF_TESTS; t++) {
-			Record[] rec = new Record[3000000];
+			Record[] rec = new Record[2000000];
 			
 			for (int i = 0; i < rec.length; i++) {
 				rec[i] = (Record) rg.iterator().next();
@@ -35,9 +35,12 @@ public class RecordSorting {
 	static class RecordDefComparator implements Comparator<Record> {
 
 		final int BASES = 5;
+		final int readLenght = 150;
+		
 
 		@Override
 		public int compare(Record r1, Record r2) {
+			
 
 			for (int i = 0; i < BASES; i++) {
 				int ret = r1.read1[i] - r2.read1[i];
@@ -45,7 +48,7 @@ public class RecordSorting {
 					return ret;
 			}
 
-			for (int i = 0; i < BASES; i++) {
+			for (int i = readLenght - 1; i > readLenght - BASES - 1; i--) {
 				int ret = r1.read2[i] - r2.read2[i];
 				if (ret != 0)
 					return ret;
@@ -57,16 +60,22 @@ public class RecordSorting {
 	}
 
 	static void lsdSort(Record[] array) {
-		final int BASES = 5;
 		final int FIRST_N_BYTES = 5;
 
 		int[] count_array = new int[20];
+		int readLength = array[0].read1.length - 1;
 		Record[] fin_array = new Record[array.length];
 
-		for (int i = FIRST_N_BYTES - 1; i >= 0; i--) {
-
+		for (int i = readLength - 1; i >= 0; i--) {
+			if (i == readLength - FIRST_N_BYTES) i = FIRST_N_BYTES - 1;
+			
 			for (int j = 0; j < array.length; j++) {
-				++count_array[array[j].read1[i] % 65];
+				if (i > 100){
+					++count_array[array[j].read2[i] % 65];
+				}
+				else {
+					++count_array[array[j].read1[i] % 65];
+				}
 			}
 
 			for (int j = 0; j < count_array.length - 1; j++) {
@@ -74,7 +83,12 @@ public class RecordSorting {
 			}
 
 			for (int j = array.length - 1; j >= 0; j--) {
-				fin_array[--count_array[(array[j].read1[i] % 65)]] = array[j];
+				if (i > 100) {
+					fin_array[--count_array[(array[j].read2[i] % 65)]] = array[j];
+				}else{
+					fin_array[--count_array[(array[j].read1[i] % 65)]] = array[j];
+				}
+				
 			}
 
 			//array = fin_array;
@@ -94,6 +108,44 @@ public class RecordSorting {
 //		}
 
 	}
+//	static void lsdSort(Record[] array) {
+//		final int FIRST_N_BYTES = 5;
+//		
+//		int[] count_array = new int[20];
+//		Record[] fin_array = new Record[array.length];
+//		
+//		for (int i = FIRST_N_BYTES - 1; i >= 0; i--) {
+//			
+//			
+//			for (int j = 0; j < array.length; j++) {
+//				++count_array[array[j].read1[i] % 65];
+//			}
+//			
+//			for (int j = 0; j < count_array.length - 1; j++) {
+//				count_array[j + 1] += count_array[j];
+//			}
+//			
+//			for (int j = array.length - 1; j >= 0; j--) {
+//				fin_array[--count_array[(array[j].read1[i] % 65)]] = array[j];
+//			}
+//			
+//			//array = fin_array;
+//			count_array = new int[20];
+//			//fin_array = new Record[array.length];
+//			for (int j = 0; j < array.length; j++) {
+//				array[j] = fin_array[j];
+//				fin_array[j] = null;
+//			}
+//		}
+//		
+////		for (Record r : array) {
+////			for (int i = 0; i < 10; i++) {
+////				System.out.printf("%s", (char)r.read1[i]);
+////			}
+////			System.out.println();
+////		}
+//		
+//	}
 	
 //	static void lsdSort(Record[] array) {
 //		final int BASES = 5;
