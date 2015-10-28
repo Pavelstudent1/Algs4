@@ -143,8 +143,9 @@ public class KdTree {
 		
 		if (r.contains(node.p)) 
 			l.add(node.p);			
-		
-		if (node.left != null && node.left.r.intersects(r)){
+		//рассмотреть возможность запуска двух потоков для поиска наимешьшего расстояния:
+		//один поток идёт налево, один на право, а на выходе сравнить, у кого расстояние меньше.
+		if (node.left != null && node.left.r.intersects(r)){ 
 			rangeRecursive(node.left, r, l);			
 		}
 		if (node.right != null && node.right.r.intersects(r)){

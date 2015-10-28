@@ -3,8 +3,6 @@ package tempPack;
 import java.util.Arrays;
 import java.util.Comparator;
 
-import edu.princeton.cs.algs4.LSD;
-
 public class RecordSorting {
 	
 	static final int VALUE_OF_TESTS = 10;
@@ -15,28 +13,40 @@ public class RecordSorting {
 		RecordGenerator rg = new RecordGenerator();
 		RecordDefComparator defcomp = new RecordDefComparator();
 		for (int t = 0; t < VALUE_OF_TESTS; t++) {
-			Record[] rec = new Record[2000000];
+			Record[] rec = new Record[3000000];
 			
 			for (int i = 0; i < rec.length; i++) {
 				rec[i] = (Record) rg.iterator().next();
 			}
 			
 			long start = System.nanoTime();
-			//Arrays.sort(rec, 0, rec.length, defcomp);
-			lsdSort(rec);
+			Arrays.sort(rec, 0, rec.length, defcomp);
+			//lsdSort(rec);
+			//TimSort.sort(rec, defcomp);
 			long stop = System.nanoTime() - start;
 			System.out.println("Test#" + (t + 1) + " = " + (double)stop / 1000000000 + " sec");
 			avg += stop ;
+			//printFirstTen(rec);
 		}
 		System.out.println("Average time for " + VALUE_OF_TESTS + 
 							" tests is " + ((double)avg / 1000000000) / VALUE_OF_TESTS + " sec");
 	}
-
+	
+	
+	static void printFirstTen(Record[] r){
+		for (int i = 0; i < 10; i++) {
+			for (int j = 0; j < 10; j++) {
+				System.out.print((char)r[i].read1[j]);
+			}
+			System.out.println();
+		}
+	}
+	
+	
+	
 	static class RecordDefComparator implements Comparator<Record> {
 
-		final int BASES = 5;
-		final int readLenght = 150;
-		
+		final int BASES = 5;		
 
 		@Override
 		public int compare(Record r1, Record r2) {
@@ -48,7 +58,7 @@ public class RecordSorting {
 					return ret;
 			}
 
-			for (int i = readLenght - 1; i > readLenght - BASES - 1; i--) {
+			for (int i = 0; i < BASES; i++) {
 				int ret = r1.read2[i] - r2.read2[i];
 				if (ret != 0)
 					return ret;
@@ -180,12 +190,4 @@ public class RecordSorting {
 //		}
 //
 //	}
-
-	void msdsort(Record[] array) {
-
-	}
-
-	void radixsort() {
-
-	}
 }
