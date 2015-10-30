@@ -20,6 +20,7 @@ public class RecordSorting {
 			}
 			
 			long start = System.nanoTime();
+			//Arrays.parallelSort(rec, 0, rec.length, defcomp);
 			Arrays.sort(rec, 0, rec.length, defcomp);
 			//lsdSort(rec);
 			//TimSort.sort(rec, defcomp);
