@@ -12,12 +12,12 @@ import edu.princeton.cs.algs4.Point2D;
 import edu.princeton.cs.algs4.RectHV;
 import edu.princeton.cs.algs4.StdDraw;
 
-public class KdTree {
+public class KdTree2 {
 
 	private Node root;
 	private int size;
 
-	public KdTree() {
+	public KdTree2() {
 		root = null;
 		size = 0;
 	}
@@ -31,67 +31,32 @@ public class KdTree {
 	}
 
 	public void insert(Point2D p) {
-		int i = 0;
-		Node curNode = root;
-		Node prevNode = null;
-		boolean lf = false;	//в какую сторону был последний заход
-
-		for (i = 0; curNode != null; i++) {
-			
-			if (curNode.p.equals(p)) return;
-
-			if (i % 2 == 0) {	//curNode - сканируемый узел, а p - точка, которой ищется нужное место
-				if (Point2D.X_ORDER.compare(curNode.p, p) > 0) {
-					prevNode = curNode;
-					curNode = curNode.left;
-					lf = true;
-				} else if (Point2D.X_ORDER.compare(curNode.p, p) <= 0) {
-					prevNode = curNode;
-					curNode = curNode.right;
-					lf = false;
-				}
-			} else {
-				if (Point2D.Y_ORDER.compare(curNode.p, p) > 0) { 
-					prevNode = curNode;
-					curNode = curNode.left;
-					lf = true;
-				} else if (Point2D.Y_ORDER.compare(curNode.p, p) <= 0) {
-					prevNode = curNode;
-					curNode = curNode.right;
-					lf = false;
-				}
-			}
-
-		}
 		
-		++this.size;
-		Node node = new Node(p, i);
-		//p.draw();
+		insert_recursive(p, root, null, 0, false);							
+	}
+	
+	private void insert_recursive(Point2D p, Node cur, Node prev, int depth, boolean isLeftTurn){
 		
-		if (root == null) {
-			root = node;
-			return;
-		} else {
-			if (lf) {
-				prevNode.left = node;
-			} else {
+		if (cur == null){
+			cur = new Node(p, depth);
+			if (prev != null){
 				
-				prevNode.right = node;
 			}
+			return;
 		}
-		
-		try{
+		if (depth % 2 == 0){
+			if (Point2D.X_ORDER.compare(p, root.p) < 0){ //если точка левее текущего узла
+				insert_recursive(p, cur.left, cur, ++depth, true);						
+			}else{
+				insert_recursive(p, cur.right, cur, ++depth, false);	
+			}
 			
-		if (prevNode.isVertical){
-			if (lf) node.r = new RectHV(prevNode.r.xmin(), prevNode.r.ymin(), prevNode.p.x(), prevNode.r.ymax());
-			else node.r = new RectHV(prevNode.p.x(), prevNode.r.ymin(), prevNode.r.xmax(), prevNode.r.ymax());
 		}else{
-			if (lf) node.r = new RectHV(prevNode.r.xmin(), prevNode.r.ymin(), prevNode.r.xmax(), prevNode.p.y());			
-			else node.r = new RectHV(prevNode.r.xmin(), prevNode.p.y(), prevNode.r.xmax(), prevNode.r.ymax());			
+			
+			
 		}
-		}catch(IllegalArgumentException e){
-			System.out.println("null");
-		}
+			
+				
 	}
 
 	public boolean contains(Point2D p) {
@@ -164,25 +129,34 @@ public class KdTree {
 		double minLength = Double.MAX_VALUE;
 		Point2D nearestPoint = null;
 		
+//		Point2D nearestPoint = null;
+//		while(cur != null){ //случай, когда точка лежит на одной из линий не учитывается
+//			pointOn(cur.p);
+//			double curMin = cur.p.distanceTo(p);
+//			if (curMin < minLength){
+//				minLength = curMin;
+//				nearestPoint = cur.p;
+//			}
+//			pointOff(cur.p);
+//			if (cur.left != null && cur.left.r.contains(p)) 
+//				cur = cur.left;
+//			else 
+//				cur = cur.right;
+//			
+//		}
+		
 		return nearestRecursive(p, nearestPoint, cur, minLength);
 	}
 	
 	private Point2D nearestRecursive(Point2D p, Point2D near, Node node, double minL){
 		
-		//pointOn(node);
+		pointOn(node.p);
 		double minCur = node.p.distanceTo(p);
 		if (minCur < minL){
 			minL = minCur;
 			near = node.p;
 		}
-		//pointOff(node);
-		/**Проблема: вследствие того, что качество поиска ближайшей точки дерева зависит от количества самих точек,
-		 * а точнее, от степени разбитости пространства, имеется проблема, когда визуально, точка близка к той точке,
-		 * к которой альгоритм поиска не придёт в силу логики его работы. Вероятное решение проблемы: искомая точка
-		 * снабжается некоторым радиусом(т.е. вокруг точки описывается окружность), который также проверяется на 
-		 * пересечение с соседними областями, точки которых вероятно могут быть ближе к заданной точке.
-		 * Вот брутфорсный вариант такой проблемы не имеет >:(
-		 **/
+		pointOff(node.p);
 		if (node.left != null && node.left.r.contains(p))
 			near = nearestRecursive(p, near, node.left, minL);
 		if (node.right != null && node.right.r.contains(p))
@@ -192,13 +166,13 @@ public class KdTree {
 	}
 //	private Point2D nearestRecursive(Point2D p, Point2D near, Node node, double minL){
 //		
-//		pointOn(node);
+//		pointOn(node.p);
 //		double minCur = node.p.distanceTo(p);
 //		if (minCur < minL){
 //			minL = minCur;
 //			near = node.p;
 //		}
-//		pointOff(node);
+//		pointOff(node.p);
 //		if (node.left != null && node.left.r.contains(p))
 //			near = nearestRecursive(p, near, node.left, minL);
 //		if (node.right != null && node.right.r.contains(p))
@@ -209,25 +183,15 @@ public class KdTree {
 	
 	
 	
-	private void pointOn(Node node){
+	private void pointOn(Point2D p){
 		StdDraw.setPenColor(StdDraw.ORANGE);
-		node.p.draw();
-		StdDraw.setPenColor(StdDraw.RED);
-		if (node.left != null) node.left.p.draw();
-		StdDraw.setPenColor(StdDraw.GREEN);
-		if (node.right != null) node.right.p.draw();
-		
+		p.draw();
 	}
 	
-	private void pointOff(Node node){
+	private void pointOff(Point2D p){
 		StdDraw.setPenColor(StdDraw.BLACK);
-		node.p.draw();
-		StdDraw.setPenColor(StdDraw.BLACK);
-		if (node.left != null) node.left.p.draw();
-		StdDraw.setPenColor(StdDraw.BLACK);
-		if (node.right != null) node.right.p.draw();
+		p.draw();		
 	}
-	
 	
 	
 
@@ -245,7 +209,7 @@ public class KdTree {
 //			kd.insert(p);
 //		}
 		
-		KdTree kd = new KdTree();
+		KdTree2 kd = new KdTree2();
 		Scanner in = null;
 		try {
 			in = new Scanner(new File("C:\\Users\\Pavel_Fedorov\\Downloads\\kdtree\\circle10.txt"));
