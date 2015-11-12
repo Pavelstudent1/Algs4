@@ -4,6 +4,9 @@ import edu.princeton.cs.algs4.Digraph;
 import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.StdIn;
 import edu.princeton.cs.algs4.StdOut;
+
+import java.util.ArrayList;
+
 import edu.princeton.cs.algs4.BreadthFirstDirectedPaths;
 
 public class SAP { // SAP = Shortest Ancestral Path
@@ -103,14 +106,82 @@ public class SAP { // SAP = Shortest Ancestral Path
 	// }
 
 	public int length(Iterable<Integer> v, Iterable<Integer> w) {
-
-		return 0;
+		
+		for (Integer iv : v) {
+			if (iv < 0 || iv > dg.V() - 1)
+				throw new IndexOutOfBoundsException();
+		}
+		
+		for (Integer iw : w) {
+			if (iw < 0 || iw > dg.V() - 1)
+				throw new IndexOutOfBoundsException();
+		}
+		
+		//BreadthFirstDirectedPaths V = new BreadthFirstDirectedPaths(dg, v);
+		//BreadthFirstDirectedPaths W = new BreadthFirstDirectedPaths(dg, w);
+		
+		
+		calcLengthAndAncestor(v, w);
+		
+		return this.min_length;
 	}
 
 	public int ancestor(Iterable<Integer> v, Iterable<Integer> w) {
-
-		return 0;
+		
+		for (Integer iv : v) {
+			if (iv < 0 || iv > dg.V() - 1)
+				throw new IndexOutOfBoundsException();
+		}
+		
+		for (Integer iw : w) {
+			if (iw < 0 || iw > dg.V() - 1)
+				throw new IndexOutOfBoundsException();
+		}
+		
+		
+		calcLengthAndAncestor(v, w);
+		
+		return this.common_ancestor;
 	}
+	
+	private void calcLengthAndAncestor(Iterable<Integer> v, Iterable<Integer> w){
+		
+		BreadthFirstDirectedPaths V = new BreadthFirstDirectedPaths(dg, v);
+		BreadthFirstDirectedPaths W = new BreadthFirstDirectedPaths(dg, w);
+		
+		ArrayList<Integer> ancestors = new ArrayList<>();
+		int ancestor = -1, minLen = Integer.MAX_VALUE;
+		
+		for (int i = 0; i < dg.V(); i++) {
+			if (V.hasPathTo(i) == W.hasPathTo(i)){
+					int len = V.distTo(i) + W.distTo(i);
+					if (len > 0 && len <= minLen){
+						ancestor = i;
+						minLen = len;
+					}
+			}
+		}
+		
+		this.common_ancestor = ancestor;
+		this.min_length = minLen;
+		
+		
+		
+		
+//		while (i < dg.V()) {
+//			if (V.hasPathTo(i) == W.hasPathTo(i)) {
+//				int length = V.distTo(i) + W.distTo(i);
+//				if (length > 0 && length <= minlength) {
+//					ancestor = i;
+//					minlength = length;
+//				}
+//			}
+//			++i;
+//		}
+	}
+	
+	
+	
 
 	private class DirectedDFS {
 
