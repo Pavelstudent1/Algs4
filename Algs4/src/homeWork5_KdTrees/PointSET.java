@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Set;
 import java.util.TreeSet;
 
+import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.Point2D;
 import edu.princeton.cs.algs4.RectHV;
 import edu.princeton.cs.algs4.StdDraw;
@@ -70,31 +71,22 @@ public class PointSET {
 	
 	public static void main(String[] args) {
 		
-		Point2D[] points = new Point2D[args.length / 2];
-		for (int i = 0, j = 0; i < args.length; i += 2, j++) {
-			points[j] = new Point2D(Double.valueOf(args[i]), Double.valueOf(args[i + 1]));
-		}
-		
+		In in = new In(args[0]);
 		PointSET pset = new PointSET();
-		for (Point2D p : points) {
-			pset.insert(p);
+		
+		while(!in.isEmpty()){
+			double x = in.readDouble();
+			double y = in.readDouble();
+			pset.insert(new Point2D(x, y));
 		}
 		
-		
+		StdDraw.setPenRadius(0.005);
 		StdDraw.show();
 		pset.draw();
 		
-		RectHV rect = new RectHV(0.1, 0.1, 0.5, 0.9);
-		rect.draw();
-		
-		
-		
-		
-		
-		
-		
-		
-		
+//		StdDraw.setPenRadius();
+//		RectHV rect = new RectHV(0.1, 0.1, 0.5, 0.9);
+//		rect.draw();
 		
 	}
 	

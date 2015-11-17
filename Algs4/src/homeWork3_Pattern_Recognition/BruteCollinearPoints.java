@@ -29,7 +29,7 @@ public class BruteCollinearPoints {
 
 		for (int i = 0; i < tmp.length; i++) {
 
-			minPoint = tmp[i];
+			minPoint = tmp[i]; //minPoint - стартовая точка прямой
 
 			for (int j = i + 1; j < tmp.length; j++) {
 				for (int k = j + 1; k < tmp.length; k++) {
@@ -39,22 +39,22 @@ public class BruteCollinearPoints {
 								&& tmp[i].slopeTo(tmp[j]) == tmp[i].slopeTo(tmp[l])) {
 							
 							maxPoint = tmp[l];
-							System.out.print(tmp[i] + " -> " + tmp[l]);
-							System.out.printf("| i = %d, j = %d, k = %d, l = %d", i, j, k, l);
+							//System.out.print(tmp[i] + " -> " + tmp[l]);
+							//System.out.printf("| i = %d, j = %d, k = %d, l = %d", i, j, k, l);
 							
 							BlankLine bline = new BlankLine(minPoint, maxPoint);
 							if (isDifferentLine(lines, bline)){
 								lines.add(bline);
-								System.out.print(" --> Added!");
+								//System.out.print(" --> Added!");
 							}
-							System.out.println();
+							//System.out.println();
 						}
 
 					}
 				}
 			}
 		}
-		System.out.println("----------------------------------------");
+		//System.out.println("----------------------------------------");
 		
 		linesegments = new LineSegment[lines.size()];
 		for (int i = 0; i < linesegments.length; i++) {
@@ -62,7 +62,7 @@ public class BruteCollinearPoints {
 		}
 
 	}
-	//вспомогательный класс с доступам к координатам, чего LineSegment не позволяет по условию задачи
+	//вспомогательный класс с доступом к координатам, чего LineSegment не позволяет по условию задачи
 	private class BlankLine{
 		Point a = null;
 		Point b = null;
@@ -113,14 +113,14 @@ public class BruteCollinearPoints {
 					//если начальные точки равны, удлинняет ли новая прямая имеющуюся
 					if (exist.a.compareTo(newOne.a) == 0 && exist.length < newOne.length){ 
 						lines.remove(exist);
-						System.out.print(" <<Delete lesser>> ");
+						//System.out.print(" <<Delete lesser>> ");
 						return true;
 					}
 					
 					//если конечные конечные точки, удлинняет ли новая прямая имеющуюся
 					if (exist.b.compareTo(newOne.b) == 0 && exist.length < newOne.length){ 
 						lines.remove(exist);
-						System.out.print(" <<Deleted lesser>> ");
+						//System.out.print(" <<Deleted lesser>> ");
 						return true;
 					}
 					

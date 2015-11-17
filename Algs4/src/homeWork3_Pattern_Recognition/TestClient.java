@@ -9,16 +9,13 @@ public class TestClient {
 	public static void main(String[] args) {
 
 	    // read the N points from a file
-//	    In in = new In(args[0]);
-	    //int N = in.readInt();
-		int N = Integer.valueOf(args[0]);
+	    In in = new In(args[0]);
+	    int N = in.readInt();
 	    Point[] points = new Point[N];
-	    for (int i = 1, j = 0; i < N * 2; i += 2, j++) {
-	        int x = Integer.valueOf(args[i]);
-	        int y = Integer.valueOf(args[i + 1]);
-//	        int x = in.readInt();
-//	        int y = in.readInt();
-	        points[j] = new Point(x, y);
+	    for (int i = 0; i < N; i++) {
+	        int x = in.readInt();
+	        int y = in.readInt();
+	        points[i] = new Point(x, y);
 	    }
 
 	    // draw the points
@@ -38,4 +35,5 @@ public class TestClient {
 	        segment.draw();
 	    }
 	}
+	
 }

@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.Point2D;
 import edu.princeton.cs.algs4.RectHV;
 import edu.princeton.cs.algs4.StdDraw;
@@ -80,7 +81,6 @@ public class KdTree {
 			}
 		}
 		
-		try{
 			
 		if (prevNode.isVertical){
 			if (lf) node.r = new RectHV(prevNode.r.xmin(), prevNode.r.ymin(), prevNode.p.x(), prevNode.r.ymax());
@@ -89,9 +89,7 @@ public class KdTree {
 			if (lf) node.r = new RectHV(prevNode.r.xmin(), prevNode.r.ymin(), prevNode.r.xmax(), prevNode.p.y());			
 			else node.r = new RectHV(prevNode.r.xmin(), prevNode.p.y(), prevNode.r.xmax(), prevNode.r.ymax());			
 		}
-		}catch(IllegalArgumentException e){
-			System.out.println("null");
-		}
+
 	}
 
 	public boolean contains(Point2D p) {
@@ -164,9 +162,12 @@ public class KdTree {
 		double minLength = Double.MAX_VALUE;
 		Point2D nearestPoint = null;
 		
-		return nearestRecursive(p, nearestPoint, cur, minLength);
+		//return nearestRecursive(p, nearestPoint, cur, minLength);
+		return nearestRecursiveV2(p, nearestPoint, cur);
 	}
 	
+	//Почти хорошо работающий вариант: в большей части случаев подкрашивает ближайший
+	//узел
 	private Point2D nearestRecursive(Point2D p, Point2D near, Node node, double minL){
 		
 		//pointOn(node);
@@ -183,13 +184,73 @@ public class KdTree {
 		 * пересечение с соседними областями, точки которых вероятно могут быть ближе к заданной точке.
 		 * Вот брутфорсный вариант такой проблемы не имеет >:(
 		 **/
-		if (node.left != null && node.left.r.contains(p))
-			near = nearestRecursive(p, near, node.left, minL);
-		if (node.right != null && node.right.r.contains(p))
-			near = nearestRecursive(p, near, node.right, minL);
+		
+		
+//		if (node.left != null && node.left.r.contains(p))
+//			near = nearestRecursive(p, near, node.left, minL);
+//		if (node.right != null && node.right.r.contains(p))
+//			near = nearestRecursive(p, near, node.right, minL);
+		
+		Point2D candidate = near;
+		if (node.left != null && node.left.r.contains(p)){
+			candidate = nearestRecursive(p, near, node.left, minL);
+			if (candidate == near && node.right != null) {
+				candidate = nearestRecursive(p, near, node.right, minL);
+			}
+		}
+			
+		if (node.right != null && node.right.r.contains(p)){
+			candidate = nearestRecursive(p, near, node.right, minL);
+			if (candidate == near && node.left != null){
+				candidate = nearestRecursive(p, near, node.left, minL);
+			}
+			
+		}
+		
+		return candidate;
+//		return near;
+	}
+	
+	//Pаботает, но суть работы немного напоминает брут-форс: множеством рекурсивных
+	//вызовом вынуждаем зайти во все(все?) листья КД-дерева. Зато лишён
+	//недостатков прошлой реализации(в силу разбития пространства на части, алгоритм
+	//мог не зайти в лист, точка которого очевидно ближе к заданной точке, но кусок
+	//области этого листа точку не содержит)
+	private Point2D nearestRecursiveV2(Point2D p, Point2D near, Node node){
+		
+		//pointOn(node);
+		double minNear = (near == null ? Double.MAX_VALUE : near.distanceTo(p));
+		//т.к. имеем дело с рекрсиями и выходами из них,
+		//мин. расстояние вычисляем ВНУТРИ конкретного вызова
+		if (node.p.distanceTo(p) < minNear){ 
+			near = node.p;					 
+		}
+		
+		//pointOff(node);
+
+		if (node.isVertical){
+			if (p.x() <= node.p.x()){
+				if (node.left != null) near = nearestRecursiveV2(p, near, node.left);
+				if (node.right != null) near = nearestRecursiveV2(p, near, node.right);
+			}else{
+				if (node.right != null) near = nearestRecursiveV2(p, near, node.right);
+				if (node.left != null) near = nearestRecursiveV2(p, near, node.left);				
+			}
+		}else{
+			if (p.y() <= node.p.y()){
+				if (node.left != null) near = nearestRecursiveV2(p, near, node.left);
+				if (node.right != null) near = nearestRecursiveV2(p, near, node.right);
+			}else{
+				if (node.right != null) near = nearestRecursiveV2(p, near, node.right);
+				if (node.left != null) near = nearestRecursiveV2(p, near, node.left);				
+			}
+		}
 		
 		return near;
 	}
+	
+	
+	
 //	private Point2D nearestRecursive(Point2D p, Point2D near, Node node, double minL){
 //		
 //		pointOn(node);
@@ -230,40 +291,19 @@ public class KdTree {
 	
 	
 	
-
 	public static void main(String[] args) {
-
-//		Point2D[] points = new Point2D[args.length / 2];
-//		for (int i = 0, j = 0; i < args.length; i += 2, j++) {
-//			points[j] = new Point2D(Double.valueOf(args[i]), Double.valueOf(args[i + 1]));
-//		}
-		
-//		StdDraw.show();
-//		StdDraw.setPenRadius(0.01);
-//		KdTree kd = new KdTree();
-//		for (Point2D p : points) {
-//			kd.insert(p);
-//		}
+	
+		In in = new In(args[0]);
 		
 		KdTree kd = new KdTree();
-		Scanner in = null;
-		try {
-			in = new Scanner(new File("C:\\Users\\Pavel_Fedorov\\Downloads\\kdtree\\circle10.txt"));
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
-		
-		while(in.hasNext()){
-			double x = in.nextDouble();
-			double y = in.nextDouble();
+		while(!in.isEmpty()){
+			double x = in.readDouble();
+			double y = in.readDouble();
 			kd.insert(new Point2D(x, y));
 		}
-		in.close();
 		
-
-		
-		StdDraw.clear();
 		kd.draw();
+		StdDraw.show();
 		
 		StdDraw.setPenRadius(0.01);
 		while(true){
@@ -281,8 +321,5 @@ public class KdTree {
 				nearest.draw();
 			}
 		}
-		
-		
 	}
-
 }
