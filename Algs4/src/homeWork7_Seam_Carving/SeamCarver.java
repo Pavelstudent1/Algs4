@@ -97,6 +97,6 @@ public class SeamCarver {
 		Picture pic = new Picture(args[0]);
 		SeamCarver sc = new SeamCarver(pic);
 		sc.printPicMatrix(pic);
-		
+		System.out.println(String.format("\nEnergy of (%d,%d) is %.3f", 1, 2, sc.energy(1, 2)));
 	}
 }
