@@ -1,7 +1,11 @@
 package homeWork7_Seam_Carving;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
+
+import javax.xml.crypto.dsig.CanonicalizationMethod;
 
 import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.Picture;
@@ -62,10 +66,14 @@ public class SeamCarver {
 	
 	public int[] findVerticalSeam(){
 		
-		findVerticalSeamV1();
-
+		int[] out = findVerticalSeamV1();
+		System.out.print("Vertical minimal seam: [");
+		for (int i = 0; i < out.length; i++) {
+			System.out.print(out[i] + " ");
+		}
+		System.out.print("]\n");
 		
-		return null;
+		return out;
 	}
 	
 	//Этот метод ищет все вертикальные симы и выбирает наименьшую по суммарной энергии
@@ -76,21 +84,81 @@ public class SeamCarver {
 		
 		
 		List<Seam> seams = new ArrayList<>();
-		double[] seam = new double[picHeight];
-		double firstLowest = Double.MAX_VALUE;
+		Coord[] seam = new Coord[picHeight];
 		
 		//ищем во второй строке пиксель с наименьшей энергией,
 		//он станет отправной точкой для линии
 		for (int i = 1, k = 0; i < seam.length; i++) {
-			seam[k++] = i;
+			seam[k] = new Coord(i, k, energy(i, k));
+			++k;
 			
+			int x = i;
+			while(k != picHeight){
+				Coord left = new Coord(x - 1, k, energy(x - 1, k));
+				Coord center = new Coord(x, k, energy(x, k));
+				Coord right = new Coord(x + 1, k, energy(x + 1, k));
+				
+				Coord min = minimumByEnergy(left, center, right, 
+											k == picHeight - 1 ? true : false);
+				seam[k] = min;
+				x = min.x;
+				++k;
+			}
 			
+			int[] seam_sh = new int[picHeight];
+			double seam_energy = 0;
+			for (int j = 0; j < seam_sh.length; j++) {
+				seam_sh[j] = seam[j].x;
+				seam_energy += seam[j].energy;
+			}
+			
+			seams.add(new Seam(seam_sh, seam_energy));
+			seam = new Coord[picHeight];
+			k = 0;
+		}
+		
+		Seam firstMin = seams.get(0);
+		for (int i = 1; i < seams.size(); i++) {
+			if (firstMin.compareTo(seams.get(i)) > 0){
+				firstMin = seams.get(i);
+			}
 		}
 		
 		
+		return firstMin.seam;
+	}
+	
+	private Coord minimumByEnergy(Coord left, Coord center, Coord right, boolean isTail){
 		
+		Coord min = null;
+		if (!isTail){
+			if (left.compareTo(center) > 0) min = center;
+			else min = left;
+			
+			if (min.compareTo(right) > 0) min = right;
+		}
+		else{ //корректный выбор хвостового элемента симы. Выбирается самый тёмный, т.е.
+			  //сумма R+G+B составляющих наименьшая
+			if (left.compareByRGBSum(center) > 0) min = center;
+			else min = left;
+			
+			if (min.compareByRGBSum(right) > 0) min = right;
+		}
 		
-		return null;
+		return min;
+	}
+	
+	private class SeamComparator implements Comparator<Seam>{
+
+		@Override
+		public int compare(Seam o1, Seam o2) {
+			
+			if (o1.compareTo(o2) > 0) return 1;
+			if (o1.compareTo(o2) < 0) return -1; 
+			
+			return 0;
+		}
+		
 	}
 	
 	private void calculateEnergyMatrix(){
@@ -103,7 +171,7 @@ public class SeamCarver {
 		}
 	}
 	
-	private static class Coord {
+	private class Coord implements Comparable<Coord>{
 		int x;
 		int y;
 		double energy;
@@ -112,6 +180,34 @@ public class SeamCarver {
 			this.x = x;
 			this.y = y;
 			this.energy = energy;
+		}
+
+		@Override
+		public int compareTo(Coord that) {
+			
+			if (this.energy > that.energy) return 1;
+			if (this.energy < that.energy) return -1;
+			
+			return 0;
+		}
+		
+		public int compareByRGBSum(Coord that){
+			int athis = pic.get(x, y).getRed() + 
+						pic.get(x, y).getBlue() + 
+						pic.get(x, y).getGreen();
+			int athat = pic.get(that.x, that.y).getRed() + 
+						pic.get(that.x, that.y).getBlue() + 
+						pic.get(that.x, that.y).getGreen();
+			
+			if (athis > athat) return 1;
+			if (athis < athat) return -1;
+			
+			return 0;
+		}
+		
+		@Override
+		public String toString() {
+			return String.format("Point(%d,%d), energy = %7.2f", x, y, energy);
 		}
 	}
 	
@@ -135,12 +231,6 @@ public class SeamCarver {
 		
 	}
 	
-	private int[] findVerticalSeamV2(){
-		
-		//этот метод будет искать первый встреченный пиксель с наименьшей энергией 
-		return null;
-	}
-	
 	
 	public void removeHorizontalSeam(int[] seam){
 		
@@ -148,6 +238,27 @@ public class SeamCarver {
 	
 	public void removeVerticalSeam(int[] seam){
 		
+		int k = 0;
+		boolean done = false;
+		Picture newPic = new Picture(picWidth - 1, picHeight);
+		
+		for (int i = 0; i < pic.height(); i++) {
+			for (int j = 0, col = 0; j < pic.width(); j++) {
+				if (j == seam[i] && !done){
+					col--;
+					done = true;
+					continue;
+				}
+				System.out.println("Row=" + i + "	RGB=" + pic.get(j, i) + "   " + i);
+				newPic.set(col++, i, pic.get(j, i));
+			}
+			done = false;
+			System.out.println("=========================");
+		}
+		
+		pic = newPic;
+		picHeight = newPic.height();
+		picWidth = newPic.width();
 	}
 	
 	//Width для картинки это визуально КОЛОНКИ!!!
@@ -177,11 +288,29 @@ public class SeamCarver {
 		
 	}
 	
+	public void print(){
+		System.out.println("W = " + pic.width() + " H = " + pic.height());
+		
+		System.out.println("\n");
+		for (int i = 0; i < pic.height(); i++) {
+			for (int j = 0; j < pic.width(); j++) {
+				System.out.printf("%10.2f", energy(j, i));
+			}
+			System.out.println();
+		}
+	}
+	
+	public void printSummRGBPicture(){
+		
+	}
+	
 	public static void main(String[] args) {
 		Picture pic = new Picture(args[0]);
 		SeamCarver sc = new SeamCarver(pic);
 		sc.printPicMatrix(pic);
 		System.out.println(String.format("\nEnergy of (%d,%d) is %.3f", 1, 2, sc.energy(1, 2)));
-		System.out.println(sc.findVerticalSeam());
+		int[] seam = sc.findVerticalSeam();
+		sc.removeVerticalSeam(seam);
+		sc.print();
 	}
 }
