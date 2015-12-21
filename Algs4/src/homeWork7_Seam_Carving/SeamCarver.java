@@ -1,5 +1,6 @@
 package homeWork7_Seam_Carving;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -67,11 +68,11 @@ public class SeamCarver {
 	public int[] findVerticalSeam(){
 		
 		int[] out = findVerticalSeamV1();
-		System.out.print("Vertical minimal seam: [");
-		for (int i = 0; i < out.length; i++) {
-			System.out.print(out[i] + " ");
-		}
-		System.out.print("]\n");
+//		System.out.print("\nCurrent vertical min seam: [ ");
+//		for (int i = 0; i < out.length; i++) {
+//			System.out.print(out[i] + " ");
+//		}
+//		System.out.print("]\n");
 		
 		return out;
 	}
@@ -88,7 +89,9 @@ public class SeamCarver {
 		
 		//ищем во второй строке пиксель с наименьшей энергией,
 		//он станет отправной точкой для линии
-		for (int i = 1, k = 0; i < seam.length; i++) {
+		//Для выполнения условия применимости energy(),
+		//проходим по области от 1 до picWidth - 1
+		for (int i = 1, k = 0; i < picWidth - 1; i++) {
 			seam[k] = new Coord(i, k, energy(i, k));
 			++k;
 			
@@ -242,18 +245,19 @@ public class SeamCarver {
 		boolean done = false;
 		Picture newPic = new Picture(picWidth - 1, picHeight);
 		
-		for (int i = 0; i < pic.height(); i++) {
-			for (int j = 0, col = 0; j < pic.width(); j++) {
+		for (int i = 0; i < newPic.height(); i++) {
+			for (int j = 0, col = 0; j < newPic.width(); j++) {
 				if (j == seam[i] && !done){
-					col--;
+					++col;
 					done = true;
-					continue;
+					//continue;
 				}
-				System.out.println("Row=" + i + "	RGB=" + pic.get(j, i) + "   " + i);
-				newPic.set(col++, i, pic.get(j, i));
+//				System.out.print(pic.get(col, i).getRGB() + " ");
+//				System.out.printf("%10d ",pic.get(col, i).getRGB());
+				newPic.set(j, i, pic.get(col++, i));
 			}
 			done = false;
-			System.out.println("=========================");
+//			System.out.println();
 		}
 		
 		pic = newPic;
@@ -263,7 +267,7 @@ public class SeamCarver {
 	
 	//Width для картинки это визуально КОЛОНКИ!!!
 	//Height соответственно СТРОКИ!!!!
-	public void printPicMatrix(Picture pic){
+	public void printPicMatrix(){
 		
 		System.out.println("Orig = " + 3 + " Power = " + (3 << 2));
 		
@@ -272,12 +276,13 @@ public class SeamCarver {
 	
 		for (int i = 0; i < pic.height(); i++) {
 			for (int j = 0; j < pic.width(); j++) {
-				System.out.print(pic.get(j, i) + " ");
+//				System.out.print(pic.get(j, i) + " ");
+				System.out.printf("%10d ", pic.get(j, i).getRGB());
 			}
 			System.out.println();
 		}
 		
-		System.out.println("\n");
+		System.out.println();
 		for (int i = 0; i < pic.height(); i++) {
 			for (int j = 0; j < pic.width(); j++) {
 				System.out.printf("%10.2f", energy(j, i));
@@ -289,9 +294,9 @@ public class SeamCarver {
 	}
 	
 	public void print(){
-		System.out.println("W = " + pic.width() + " H = " + pic.height());
+		System.out.println("\nW = " + pic.width() + " H = " + pic.height());
 		
-		System.out.println("\n");
+		System.out.println();
 		for (int i = 0; i < pic.height(); i++) {
 			for (int j = 0; j < pic.width(); j++) {
 				System.out.printf("%10.2f", energy(j, i));
@@ -300,17 +305,23 @@ public class SeamCarver {
 		}
 	}
 	
-	public void printSummRGBPicture(){
-		
+	public Picture getImage(){
+		return pic;
 	}
 	
 	public static void main(String[] args) {
 		Picture pic = new Picture(args[0]);
 		SeamCarver sc = new SeamCarver(pic);
-		sc.printPicMatrix(pic);
-		System.out.println(String.format("\nEnergy of (%d,%d) is %.3f", 1, 2, sc.energy(1, 2)));
-		int[] seam = sc.findVerticalSeam();
-		sc.removeVerticalSeam(seam);
-		sc.print();
+		int round = 0;
+		while(sc.getImage().width() != 600){
+			System.out.println("============= Minus " + (++round) + "=================");
+			//sc.printPicMatrix();
+			int[] seam = sc.findVerticalSeam();
+			sc.removeVerticalSeam(seam);
+			//sc.print();
+			File f = new File(String.format("C:\\4\\img%dx%d.png", 
+					sc.getImage().width(), sc.getImage().height()));
+			sc.getImage().save(f);
+		}
 	}
 }
