@@ -87,19 +87,23 @@ public class SeamCarver {
 		List<Seam> seams = new ArrayList<>();
 		Coord[] seam = new Coord[picHeight];
 		
-		//ищем во второй строке пиксель с наименьшей энергией,
-		//он станет отправной точкой для линии
-		//Для выполнения условия применимости energy(),
-		//проходим по области от 1 до picWidth - 1
 		for (int i = 1, k = 0; i < picWidth - 1; i++) {
-			seam[k] = new Coord(i, k, energy(i, k));
+//			System.out.println(energy(i,k) + " = " + picEnergy[k][i]);
+			seam[k] = new Coord(i, k, picEnergy[k][i]);
+//			seam[k] = new Coord(i, k, energy(i, k));
 			++k;
 			
 			int x = i;
 			while(k != picHeight){
-				Coord left = new Coord(x - 1, k, energy(x - 1, k));
-				Coord center = new Coord(x, k, energy(x, k));
-				Coord right = new Coord(x + 1, k, energy(x + 1, k));
+//				System.out.println(energy(x - 1,k) + " = " + picEnergy[k][x - 1]);
+//				System.out.println(energy(x,k) + " = " + picEnergy[k][x]);
+//				System.out.println(energy(x + 1,k) + " = " + picEnergy[k][x + 1]);
+				Coord left = new Coord(x - 1, k, picEnergy[k][x - 1]);
+				Coord center = new Coord(x, k, picEnergy[k][x]);
+				Coord right = new Coord(x + 1, k, picEnergy[k][x + 1]);
+//				Coord left = new Coord(x - 1, k, energy(x - 1, k));
+//				Coord center = new Coord(x, k, energy(x, k));
+//				Coord right = new Coord(x + 1, k, energy(x + 1, k));
 				
 				Coord min = minimumByEnergy(left, center, right, 
 											k == picHeight - 1 ? true : false);
@@ -149,19 +153,6 @@ public class SeamCarver {
 		}
 		
 		return min;
-	}
-	
-	private class SeamComparator implements Comparator<Seam>{
-
-		@Override
-		public int compare(Seam o1, Seam o2) {
-			
-			if (o1.compareTo(o2) > 0) return 1;
-			if (o1.compareTo(o2) < 0) return -1; 
-			
-			return 0;
-		}
-		
 	}
 	
 	private void calculateEnergyMatrix(){
@@ -252,7 +243,6 @@ public class SeamCarver {
 					done = true;
 					//continue;
 				}
-//				System.out.print(pic.get(col, i).getRGB() + " ");
 //				System.out.printf("%10d ",pic.get(col, i).getRGB());
 				newPic.set(j, i, pic.get(col++, i));
 			}
@@ -263,6 +253,7 @@ public class SeamCarver {
 		pic = newPic;
 		picHeight = newPic.height();
 		picWidth = newPic.width();
+		this.calculateEnergyMatrix();
 	}
 	
 	//Width для картинки это визуально КОЛОНКИ!!!
@@ -276,7 +267,6 @@ public class SeamCarver {
 	
 		for (int i = 0; i < pic.height(); i++) {
 			for (int j = 0; j < pic.width(); j++) {
-//				System.out.print(pic.get(j, i) + " ");
 				System.out.printf("%10d ", pic.get(j, i).getRGB());
 			}
 			System.out.println();
@@ -303,6 +293,13 @@ public class SeamCarver {
 			}
 			System.out.println();
 		}
+		
+		for (int i = 0; i < pic.height(); i++) {
+			for (int j = 0; j < pic.width(); j++) {
+				System.out.printf("%10.2f", picEnergy[i][j]);
+			}
+			System.out.println();
+		}
 	}
 	
 	public Picture getImage(){
@@ -310,18 +307,21 @@ public class SeamCarver {
 	}
 	
 	public static void main(String[] args) {
+		long sTime = System.currentTimeMillis(), eTime = 0;
 		Picture pic = new Picture(args[0]);
 		SeamCarver sc = new SeamCarver(pic);
 		int round = 0;
-		while(sc.getImage().width() != 600){
-			System.out.println("============= Minus " + (++round) + "=================");
-			//sc.printPicMatrix();
+		while(sc.getImage().width() != 700){
+			System.out.println("============ Minus " + (++round) + " pixel from Width =============");
+//			sc.printPicMatrix();
 			int[] seam = sc.findVerticalSeam();
 			sc.removeVerticalSeam(seam);
-			//sc.print();
+//			sc.print();
 			File f = new File(String.format("C:\\4\\img%dx%d.png", 
 					sc.getImage().width(), sc.getImage().height()));
 			sc.getImage().save(f);
 		}
+		eTime = System.currentTimeMillis();
+		System.out.println("Elapsed: " + ((double)(eTime - sTime)/1000) + " seconds.");
 	}
 }
