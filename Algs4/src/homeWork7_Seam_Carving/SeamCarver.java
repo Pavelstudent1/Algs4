@@ -50,16 +50,14 @@ public class SeamCarver {
 		if (y == 0 || y == picHeight - 1)
 			return 1000;
 
-		int Rx = pic.get(x + 1, y).getRed() - pic.get(x - 1, y).getRed(), Gx = pic
-				.get(x + 1, y).getGreen() - pic.get(x - 1, y).getGreen(), Bx = pic
-				.get(x + 1, y).getBlue() - pic.get(x - 1, y).getBlue();
-		// double deltaX = Math.pow(Rx, 2) + Math.pow(Gx, 2) + Math.pow(Bx, 2);
+		int Rx = pic.get(x + 1, y).getRed() - pic.get(x - 1, y).getRed(), 
+			Gx = pic.get(x + 1, y).getGreen() - pic.get(x - 1, y).getGreen(), 
+			Bx = pic.get(x + 1, y).getBlue() - pic.get(x - 1, y).getBlue();
 		double deltaX = Rx * Rx + Gx * Gx + Bx * Bx;
 
-		int Ry = pic.get(x, y + 1).getRed() - pic.get(x, y - 1).getRed(), Gy = pic
-				.get(x, y + 1).getGreen() - pic.get(x, y - 1).getGreen(), By = pic
-				.get(x, y + 1).getBlue() - pic.get(x, y - 1).getBlue();
-		// double deltaY = Math.pow(Ry, 2) + Math.pow(Gy, 2) + Math.pow(By, 2);
+		int Ry = pic.get(x, y + 1).getRed() - pic.get(x, y - 1).getRed(), 
+			Gy = pic.get(x, y + 1).getGreen() - pic.get(x, y - 1).getGreen(), 
+			By = pic.get(x, y + 1).getBlue() - pic.get(x, y - 1).getBlue();
 		double deltaY = Ry * Ry + Gy * Gy + By * By;
 
 		return Math.sqrt(deltaX + deltaY);
@@ -210,18 +208,18 @@ public class SeamCarver {
 		List<Seam> seams = new ArrayList<>();
 		Coord[] seam = new Coord[limit];
 
-		for (int i = 1, k = 0; i < for_limit; i++) {
+		for (int i = 1, k = 0, p = 0; i < for_limit; i++) {
 			if (isVertical){ //g и h маскируют i и k далее в цикле
 				g = i; h = k; a = 1; b = 0;
 			}else{
 				g = k; h = i; a = 0; b = 1;
 			}
-			seam[h] = new Coord(g, h, picEnergy[h][g]);
+			seam[p++] = new Coord(g, h, picEnergy[h][g]);
 			
 			if(isVertical) ++h;
 			else ++g;
-
-			while (h != limit) { //затыка здесь, нужна ещё переменная принимающая
+			
+			while (p != limit) { //затыка здесь, нужна ещё переменная принимающая
 								 //один раз значение, и далее просто инкрементируемая
 								 //до нужного предела
 				Coord left = new Coord(g - a, h - b, picEnergy[h - b][g - a]);
@@ -229,11 +227,13 @@ public class SeamCarver {
 				Coord right = new Coord(g + a, h + b, picEnergy[h + b][g + a]);
 
 				Coord min = minimumByEnergy(left, center, right,
-						h == limit - 1 ? true : false);
-				seam[h] = min;
+						p == limit - 1 ? true : false);
+				seam[p] = min;
 				
 				if(isVertical) {g = min.x; ++h;}
 				else {h = min.y; ++g;}
+				
+				++p;
 			}
 
 			int[] seam_sh = new int[limit];
@@ -245,7 +245,7 @@ public class SeamCarver {
 
 			seams.add(new Seam(seam_sh, seam_energy));
 			seam = new Coord[limit];
-			k = 0;
+			p = 0;
 		}
 
 		Seam firstMin = seams.get(0);
@@ -271,8 +271,7 @@ public class SeamCarver {
 			if (min.compareTo(right) > 0)
 				min = right;
 		} else { // корректный выбор хвостового элемента симы. Выбирается самый
-					// тёмный, т.е.
-					// сумма R+G+B составляющих наименьшая
+				 // тёмный, т.е. сумма R+G+B составляющих наименьшая
 			if (left.compareByRGBSum(center) > 0)
 				min = center;
 			else
@@ -417,14 +416,6 @@ public class SeamCarver {
 	public void print() {
 		System.out.println("\nW = " + pic.width() + " H = " + pic.height());
 
-		// System.out.println();
-		// for (int i = 0; i < pic.height(); i++) {
-		// for (int j = 0; j < pic.width(); j++) {
-		// System.out.printf("%10.2f", energy(j, i));
-		// }
-		// System.out.println();
-		// }
-
 		for (int i = 0; i < pic.height(); i++) {
 			for (int j = 0; j < pic.width(); j++) {
 				System.out.printf("%10.2f", picEnergy[i][j]);
@@ -443,11 +434,10 @@ public class SeamCarver {
 		SeamCarver sc = new SeamCarver(pic);
 		int round = 0;
 		while (sc.getImage().width() != 700) {
-			System.out.println("============ Minus " + (++round)
-					+ " pixel from Width =============");
+			System.out.println("============ Minus " + (++round) + " pixel from Width =============");
 			sc.printPicMatrix();
-//			int[] seam = sc.findVerticalSeam();
-			int[] seam = sc.findHorizontalSeam();
+			int[] seam = sc.findVerticalSeam();
+//			int[] seam = sc.findHorizontalSeam();
 			sc.removeVerticalSeam(seam);
 			sc.print();
 			File f = new File(String.format("C:\\4\\img%dx%d.png", sc
