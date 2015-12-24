@@ -11,7 +11,7 @@ import javax.xml.crypto.dsig.CanonicalizationMethod;
 import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.Picture;
 
-public class SeamCarver {
+public class SeamCarverV2 {
 
 	Picture pic;
 	int picWidth;
@@ -19,7 +19,7 @@ public class SeamCarver {
 
 	double[][] picEnergy = null;
 
-	public SeamCarver(Picture picture) {
+	public SeamCarverV2(Picture picture) {
 		if (picture == null)
 			throw new NullPointerException("Empty constructor's argument!");
 		this.pic = picture;
@@ -88,200 +88,47 @@ public class SeamCarver {
 
 		return out;
 	}
-
-	// Этот метод ищет все вертикальные симы и выбирает наименьшую по суммарной
-	// энергии
-	// Минус метода идёт из условия задачи - энергия краевых пикселей равна
-	// 1000, откуда
-	// получается ситуация, что самые верхний и нижний пиксели могут выбираться
-	// из трёх
-	// одинаковых по энергии, но различными по реальному RGB цвету.
-	private int[] findVerticalSeamV1() {
-
-		List<Seam> seams = new ArrayList<>();
-		Coord[] seam = new Coord[picHeight];
-
-		for (int i = 1, k = 0; i < picWidth - 1; i++) {
-			// System.out.println(energy(i,k) + " = " + picEnergy[k][i]);
-			seam[k] = new Coord(i, k, picEnergy[k][i]);
-			// seam[k] = new Coord(i, k, energy(i, k));
-			++k;
-
-			int x = i;
-			while (k != picHeight) {
-				// System.out.println(energy(x - 1,k) + " = " + picEnergy[k][x -
-				// 1]);
-				// System.out.println(energy(x,k) + " = " + picEnergy[k][x]);
-				// System.out.println(energy(x + 1,k) + " = " + picEnergy[k][x +
-				// 1]);
-				Coord left = new Coord(x - 1, k, picEnergy[k][x - 1]);
-				Coord center = new Coord(x, k, picEnergy[k][x]);
-				Coord right = new Coord(x + 1, k, picEnergy[k][x + 1]);
-				// Coord left = new Coord(x - 1, k, energy(x - 1, k));
-				// Coord center = new Coord(x, k, energy(x, k));
-				// Coord right = new Coord(x + 1, k, energy(x + 1, k));
-
-				Coord min = minimumByEnergy(left, center, right,
-						k == picHeight - 1 ? true : false);
-				seam[k] = min;
-				x = min.x;
-				++k;
-			}
-
-			int[] seam_sh = new int[picHeight];
-			double seam_energy = 0;
-			for (int j = 0; j < seam_sh.length; j++) {
-				seam_sh[j] = seam[j].x;
-				seam_energy += seam[j].energy;
-			}
-
-			seams.add(new Seam(seam_sh, seam_energy));
-			seam = new Coord[picHeight];
-			k = 0;
-		}
-
-		Seam firstMin = seams.get(0);
-		for (int i = 1; i < seams.size(); i++) {
-			if (firstMin.compareTo(seams.get(i)) > 0) {
-				firstMin = seams.get(i);
-			}
-		}
-
-		return firstMin.seam;
-	}
-
-	private int[] findHorizSeamV1() {
-
-		List<Seam> seams = new ArrayList<>();
-		Coord[] seam = new Coord[picWidth];
-
-		for (int i = 1, k = 0; i < picHeight - 1; i++) {
-			seam[k] = new Coord(k, i, picEnergy[i][k]);
-			++k;
-
-			int x = i;
-			while (k != picWidth) {
-				Coord left = new Coord(k, x - 1, picEnergy[x - 1][k]);
-				Coord center = new Coord(k, x, picEnergy[x][k]);
-				Coord right = new Coord(k, x + 1, picEnergy[x + 1][k]);
-
-				Coord min = minimumByEnergy(left, center, right,
-						k == picWidth - 1 ? true : false);
-				seam[k] = min;
-				x = min.y;
-				++k;
-			}
-
-			int[] seam_sh = new int[picWidth];
-			double seam_energy = 0;
-			for (int j = 0; j < seam_sh.length; j++) {
-				seam_sh[j] = seam[j].y;
-				seam_energy += seam[j].energy;
-			}
-
-			seams.add(new Seam(seam_sh, seam_energy));
-			seam = new Coord[picWidth];
-			k = 0;
-		}
-
-		Seam firstMin = seams.get(0);
-		for (int i = 1; i < seams.size(); i++) {
-			if (firstMin.compareTo(seams.get(i)) > 0) {
-				firstMin = seams.get(i);
-			}
-		}
-
-		return firstMin.seam;
-	}
 	
 	//Универсальный метод поиск Seam
 	private int[] findSeam(boolean isVertical) {
 		
-		//локально-глобальные переменные, зависящие от того, 
-		//какого типа Seam ищется
 		int limit = (isVertical ? picHeight : picWidth),
-			//-1 берётся от того, что проходим ряд, не включая первый и последний
-			//элементы, т.к. у них не будет 3-го члена для сравнения
 			for_limit = (isVertical ? picWidth - 1 : picHeight - 1),
-			g, h, a, b;
+			l = for_limit + 1, a, b, c, d, e, g, p;
 
 		List<Seam> seams = new ArrayList<>();
-		Coord[] seam = new Coord[limit];
-
-		for (int i = 1, k = 0, p = 0; i < for_limit; i++) {
-			if (isVertical){ //g и h маскируют i и k далее в цикле
-				g = i; h = k; a = 1; b = 0;
-			}else{
-				g = k; h = i; a = 0; b = 1;
-			}
-			seam[p++] = new Coord(g, h, picEnergy[h][g]);
-			
-			if(isVertical) ++h;
-			else ++g;
-			
-			while (p != limit) { //затыка здесь, нужна ещё переменная принимающая
-								 //один раз значение, и далее просто инкрементируемая
-								 //до нужного предела
-				Coord left = new Coord(g - a, h - b, picEnergy[h - b][g - a]);
-				Coord center = new Coord(g, h, picEnergy[h][g]);
-				Coord right = new Coord(g + a, h + b, picEnergy[h + b][g + a]);
-
-				Coord min = minimumByEnergy(left, center, right,
-						p == limit - 1 ? true : false);
-				seam[p] = min;
-				
-				if(isVertical) {g = min.x; ++h;}
-				else {h = min.y; ++g;}
-				
-				++p;
-			}
-				
-			//оптимизация: не складировать варианты симов, а сразу сравнивать с той,
-			//что уже имеется и выбирать наименьшую.
-			int[] seam_sh = new int[limit];
-			double seam_energy = 0;
-			for (int j = 0; j < seam_sh.length; j++) {
-				seam_sh[j] = (isVertical ? seam[j].x : seam[j].y);
-				seam_energy += seam[j].energy;
-			}
-
-			seams.add(new Seam(seam_sh, seam_energy));
-			seam = new Coord[limit];
-			p = 0;
+		double[] seam = new double[limit];
+	
+		
+		int min = Integer.MAX_VALUE;
+		for(int i = 1; i < for_limit; i++){
+			min = compareByRGBSum(i, 0, min);
 		}
+			
 
-		Seam firstMin = seams.get(0);
-		for (int i = 1; i < seams.size(); i++) {
-			if (firstMin.compareTo(seams.get(i)) > 0) {
-				firstMin = seams.get(i);
-			}
-		}
+		return null;
+	}
+	
+	public int compareByRGBSum(int x, int y, int min) {
+		int val = pic.get(x, y).getRed() //лучше вычислять как и др. точки
+				+ pic.get(x, y).getBlue() 
+				+ pic.get(x, y).getGreen();
+		
+		if (val > min) val = min;
 
-		return firstMin.seam;
+		return val;
 	}
 
-	private Coord minimumByEnergy(Coord left, Coord center, Coord right,
-			boolean isTail) {
+	private double minimumByEnergy(double left, double center, double right) {
 
-		Coord min = null;
-		if (!isTail) {
-			if (left.compareTo(center) > 0)
+		double min;
+			if (left > center)
 				min = center;
 			else
 				min = left;
 
-			if (min.compareTo(right) > 0)
+			if (center > right)
 				min = right;
-		} else { // корректный выбор хвостового элемента симы. Выбирается самый
-				 // тёмный, т.е. сумма R+G+B составляющих наименьшая
-			if (left.compareByRGBSum(center) > 0)
-				min = center;
-			else
-				min = left;
-
-			if (min.compareByRGBSum(right) > 0)
-				min = right;
-		}
 
 		return min;
 	}
@@ -289,7 +136,7 @@ public class SeamCarver {
 	private void calculateEnergyMatrix() {
 		this.picEnergy = new double[picHeight][picWidth];
 
-		for (int i = 0; i < picHeight; i++) {
+		for (int i = 0, k = 0; i < picHeight; i++) {
 			for (int j = 0; j < picWidth; j++) {
 				picEnergy[i][j] = this.energy(j, i);
 			}
@@ -319,9 +166,10 @@ public class SeamCarver {
 		}
 
 		public int compareByRGBSum(Coord that) {
-			int athis = pic.get(x, y).getRed() + pic.get(x, y).getBlue()
+			int athis = pic.get(x, y).getRed() 
+					+ pic.get(x, y).getBlue() 
 					+ pic.get(x, y).getGreen();
-			int athat = pic.get(that.x, that.y).getRed()
+			int athat = pic.get(that.x, that.y).getRed() 
 					+ pic.get(that.x, that.y).getBlue()
 					+ pic.get(that.x, that.y).getGreen();
 
@@ -433,7 +281,7 @@ public class SeamCarver {
 	public static void main(String[] args) {
 		long sTime = System.currentTimeMillis(), eTime = 0;
 		Picture pic = new Picture(args[0]);
-		SeamCarver sc = new SeamCarver(pic);
+		SeamCarverV2 sc = new SeamCarverV2(pic);
 		int round = 0;
 		while (sc.getImage().width() != 700) {
 			System.out.println("============ Minus " + (++round) + " pixel from Width =============");
