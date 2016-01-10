@@ -1,3 +1,11 @@
+/** 
+ * 
+ * ЗАПУСКАТЬ ТОЛЬКО ИЗ КОНСОЛИ КАК УКАЗАННО В ДОМАШНЕМ ЗАДАНИИ
+ * http://coursera.cs.princeton.edu/algs4/assignments/burrows.html
+ * 
+ * **/
+
+
 package homeWork10_Burrows_Wheeler_Data_Compression;
 
 import java.util.ArrayList;
