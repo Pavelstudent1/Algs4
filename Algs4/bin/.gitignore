@@ -1,8 +1,8 @@
+/homeWork8_Baseball_Elimination/
 /SingleHashTest/
 /concurrent1/
 /concurrent2/
 /concurrent3/
-/concurrent4_140610/
 /forMetrix/
 /homeWork10_Burrows_Wheeler_Data_Compression/
 /homeWork1_Percolation/
@@ -11,5 +11,11 @@
 /homeWork4_8_Puzzle/
 /homeWork5_KdTrees/
 /homeWork6_WordNet/
-/tempPack/
+/homeWork7_Seam_Carving/
 /homeWork9_Boggle/
+/metrics/
+/pill/
+/shellSort/
+/tempPack/
+/unionFind/
+/concurrent4/
