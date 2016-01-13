@@ -1,31 +1,46 @@
 package concurrent4;
 
-import java.util.LinkedList;
-import java.util.Queue;
-
 import concurrent1.Utils;
 
-//ПОСЛЕДНИЙ ПОСМОТРЕННЫЙ 14.06.10_01
 public class WorkerExample {
 	
-	public static class Worker implements Runnable {
+	public static void main(String[] args) {
 		
-		private final Queue<Runnable> _tasks = new LinkedList<>();
+		Worker worker = new Worker();
 		
-		@Override
-		public void run() {
-			while(!hasNewTask()){
-				Utils.pause(1000);
+		worker.execute(new Runnable() {
+			
+			@Override
+			public void run() {
+				System.out.println("Hello from " + Thread.currentThread());
+			}
+		});
+		
+		worker.execute(new Runnable() {
+			
+			@Override
+			public void run() {
+				System.out.println("Another hello from " + Thread.currentThread());
+			}
+		});
+		
+		class Task implements Runnable {
+			
+			@Override
+			public void run() {
+				System.out.println("start task");
+				Utils.pause(3000);
+				System.out.println("finish task");
+				throw new RuntimeException();
 			}
 		}
 		
-		private boolean hasNewTask() {
-			return !_tasks.isEmpty();
-		}
-
-		public void execute(Runnable task){
-			_tasks.add(task);
-		}
+		System.out.println("task 1");
+		worker.execute(new Task());
+		Utils.pause(100);
+		System.out.println("task 2");
+		worker.execute(new Task());
+		System.out.println("finished");
 	}
 	
 }
