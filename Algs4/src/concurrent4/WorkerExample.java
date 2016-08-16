@@ -6,6 +6,7 @@ public class WorkerExample {
 	
 	public static void main(String[] args) {
 		
+//		PrimitiveWorker worker = new PrimitiveWorker();
 		Worker worker = new Worker();
 		
 		worker.execute(new Runnable() {
@@ -41,6 +42,8 @@ public class WorkerExample {
 		System.out.println("task 2");
 		worker.execute(new Task());
 		System.out.println("finished");
+		
+		worker.shutdown();
 	}
 	
 }

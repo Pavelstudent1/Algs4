@@ -1,15 +1,18 @@
 package concurrent4;
 
-//Last 14.06.10_04
+import java.util.LinkedList;
+import java.util.Queue;
 
-public class Worker {
+import concurrent1.Utils;
+
+public class PrimitiveWorker {
 	
 	private static final Runnable POISON_PILL = new Runnable() {
 		@Override
 		public void run() {}
 	};
 
-	private final BlockingQueue<Runnable> _tasks = new BlockingQueue<>();
+	private final Queue<Runnable> _tasks = new LinkedList<>();
 	
 	//внутренний класс скрывает реализацию Runnable извне
 	//класса Worker, т.е. Worker извне принимает лишь
@@ -19,7 +22,16 @@ public class Worker {
 		public void run() {
 			Runnable task;
 			while (true) {
-				task = _tasks.poll();
+				synchronized (_tasks) {
+					while (!hasNewTask()) {
+						try {
+							_tasks.wait();
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+					}
+					task = _tasks.poll();
+				}
 				if (task == POISON_PILL){
 					break;
 				}
@@ -33,12 +45,21 @@ public class Worker {
 		}
 	}
 	
-	public Worker() {
+	public PrimitiveWorker() {
 		new Thread(new WorkerTask()).start();
+	}
+	
+
+	private boolean hasNewTask() {
+		return !_tasks.isEmpty();
 	}
 
 	public void execute(Runnable task) {
-		_tasks.offer(task);
+		synchronized (_tasks) {
+			_tasks.offer(task);
+			_tasks.notify();
+			System.out.println("Added task");
+		}
 	}
 	
 	//кладёт стоп-задачу в конец очереди. Когда очередь дойдёт
