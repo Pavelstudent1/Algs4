@@ -8,13 +8,17 @@ public class DeadLock {
 	static Object knife = new Object();
 	
 	
-	
+	/**
+	 * если первый поток берёт вилку, а затем нож, а второй поток наоборот - получится дедлок, 
+	 * т.к. один поток блокирует то, что требуется свободным другому.
+	 * Если у каждого будет сначала вилка, а затем нож, то проблем не будет
+	 */
 	public static void main(String[] args) {
 		
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
-				synchronized (fork) {
+				synchronized (fork) {	
 					Utils.pause(1000);
 					synchronized (knife) {
 						System.out.println("first person is eating");
@@ -26,9 +30,9 @@ public class DeadLock {
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
-				synchronized (fork) {
+				synchronized (knife) {
 					Utils.pause(1000);
-					synchronized (knife) {
+					synchronized (fork) {
 						System.out.println("second person is eating");
 					}
 				}
